@@ -1,0 +1,96 @@
+spring:
+  application:
+    name: c15-gameplay
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          # Proveedor de identidad (Auth0): no son secretos
+          issuer-uri: ${AUTH0_ISSUER:https://escaperoomc15.us.auth0.com/}
+          audiences: ${AUTH0_AUDIENCE:https://api.escaperoomc15}
+  # Base de datos propia del servicio: el catalogo de acertijos y elementos del mapa (el estado de la partida va en memoria o Redis)
+  datasource:
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:c15_gameplay}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PUERTO:6379}
+      password: ${REDIS_CLAVE:}
+      repositories:
+        enabled: false
+  # Eventos entre servicios (Event Hubs en Azure: bootstrap <namespace>.servicebus.windows.net:9093 + SASL)
+  kafka:
+    bootstrap-servers: ${KAFKA_SERVIDORES:localhost:9092}
+    producer:
+      # Kafka confirma cuando todas las replicas lo tienen y no duplica por reintentos del productor
+      acks: all
+    consumer:
+      # Un grupo nuevo empieza por lo que llegue (no repite partidas viejas); el grupo luego recuerda por donde va
+      auto-offset-reset: ${KAFKA_DESDE:latest}
+    template:
+      # La traza (traceId) viaja en los headers del mensaje hasta quien lo recibe
+      observation-enabled: true
+    listener:
+      observation-enabled: true
+    admin:
+      # Crea los topics si no existen (en Event Hubs se crean a mano)
+      auto-create: ${KAFKA_CREAR_TOPICS:true}
+
+server:
+  port: ${PORT:8080}
+
+c15:
+  estado:
+    # false: estado de la partida en memoria (una sola replica). true: en Redis, compartido entre replicas (con un dueno por partida)
+    redis: ${ESTADO_REDIS:false}
+    # Todo en Redis caduca: lo de una partida dura lo que la partida mas este margen (regla del profe: minutos, nunca mas de 1 h)
+    margen: 10m
+  reto:
+    # 5 s del aviso del front (ModalDesafio) + 20 s de juego: el reto corre desde que sale el aviso
+    duracion: ${RETO_DURACION:25s}
+  eventos:
+    # Publica partida-terminada; escucha partida-iniciada, partida-terminada (libera estado) y sesion (del broker)
+    kafka: ${EVENTOS_KAFKA:true}
+    prefijo: ${KAFKA_PREFIJO:c15.}
+    # Las replicas de este servicio comparten grupo: cada evento lo atiende una sola
+    grupo: ${KAFKA_GRUPO:c15-gameplay}
+  stomp:
+    broker:
+      # Lo que se publica (cronometro, reto, posiciones...) sale por RabbitMQ hacia el broker, donde estan conectados los jugadores
+      relay: ${STOMP_RELAY:true}
+      host: ${STOMP_HOST:localhost}
+      puerto: ${STOMP_PUERTO:61613}
+      usuario: ${STOMP_USUARIO:}
+      clave: ${STOMP_CLAVE:}
+
+# Logs en JSON salvo con el perfil "local"; el traceId lo agrega Micrometer Tracing
+logging:
+  structured:
+    format:
+      console: ecs
+  level:
+    # El cliente de Kafka escribe mucho en INFO (configuracion, rebalanceos); solo avisos y errores
+    org.apache.kafka: warn
+
+management:
+  health:
+    redis:
+      enabled: ${ESTADO_REDIS:false}
+  tracing:
+    sampling:
+      probability: 1.0
+  otlp:
+    tracing:
+      endpoint: ${OTEL_TRACES_URL:http://localhost:4318/v1/traces}
+      export:
+        enabled: ${OTEL_ACTIVO:false}
+    logging:
+      endpoint: ${OTEL_LOGS_URL:http://localhost:4318/v1/logs}
+      export:
+        enabled: ${OTEL_ACTIVO:false}
