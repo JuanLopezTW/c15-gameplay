@@ -86,7 +86,7 @@ public class HeroVillainChallengeService {
                 .ifPresent(r -> rolesByTeam.put(team, r)));
         if (rolesByTeam.size() < 2) {
             retos.cancelar(matchId);
-            log.warn("La partida {} no tiene roles para al menos dos equipos; no hay reto", matchId);
+            EventoNegocio.de(log, "reto.sin-roles").con("matchId", matchId).warn();
             return false;
         }
 

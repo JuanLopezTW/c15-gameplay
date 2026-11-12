@@ -38,6 +38,8 @@ import java.util.TreeMap;
 @Primary
 public class RetosRedis implements RetosPartida {
 
+    private static final String CAMPO_ESTADO = "estado";
+
     static final String ACTIVOS = "c15:partidas:retos";
     private static final TypeReference<List<String>> LISTA = new TypeReference<>() {};
 
@@ -121,10 +123,10 @@ public class RetosRedis implements RetosPartida {
     @Override
     public Optional<Plan> plan(String matchId) {
         Map<Object, Object> h = redis().opsForHash().entries(clave(matchId));
-        if (h.isEmpty() || h.get("estado") == null) return Optional.empty();
+        if (h.isEmpty() || h.get(CAMPO_ESTADO) == null) return Optional.empty();
         List<String> equipos = estado.deJson((String) h.get("equipos"), LISTA);
         return Optional.of(new Plan(matchId, equipos, Instant.ofEpochMilli(Long.parseLong((String) h.get("inicio"))),
-                Estado.valueOf((String) h.get("estado"))));
+                Estado.valueOf((String) h.get(CAMPO_ESTADO))));
     }
 
     @Override
@@ -148,7 +150,7 @@ public class RetosRedis implements RetosPartida {
 
     @Override
     public Optional<EnCurso> enCurso(String matchId) {
-        List<Object> estadoYFin = redis().opsForHash().multiGet(clave(matchId), List.of("estado", "fin"));
+        List<Object> estadoYFin = redis().opsForHash().multiGet(clave(matchId), List.of(CAMPO_ESTADO, "fin"));
         if (!"EN_CURSO".equals(estadoYFin.get(0))) return Optional.empty();
         Instant fin = Instant.ofEpochMilli(Long.parseLong((String) estadoYFin.get(1)));
         return Optional.of(new EnCurso(matchId, fin, puntajes(redis().opsForHash().entries(claves(matchId).get(2)))));
@@ -177,7 +179,7 @@ public class RetosRedis implements RetosPartida {
         Set<String> miembros = redis().opsForSet().members(ACTIVOS);
         if (miembros == null) return List.of();
         return miembros.stream().filter(m -> {
-            Object e = redis().opsForHash().get(clave(m), "estado");
+            Object e = redis().opsForHash().get(clave(m), CAMPO_ESTADO);
             boolean vivo = "PROGRAMADO".equals(e) || "EN_CURSO".equals(e);
             if (!vivo) redis().opsForSet().remove(ACTIVOS, m);
             return vivo;

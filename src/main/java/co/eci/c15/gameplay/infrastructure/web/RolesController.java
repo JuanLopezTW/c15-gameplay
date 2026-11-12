@@ -19,6 +19,8 @@ import java.util.Map;
 @RequestMapping("/api/partidas/{matchId}")
 public class RolesController {
 
+    private static final String ERROR = "error";
+
     public record AsignarRequest(Map<String, List<String>> equipos) {}
 
     private final AsignarRolesUseCase asignar;
@@ -35,7 +37,7 @@ public class RolesController {
         try {
             return ResponseEntity.ok(asignar.ejecutar(matchId, body.equipos()));
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+            return ResponseEntity.badRequest().body(Map.of(ERROR, e.getMessage()));
         }
     }
 
@@ -44,7 +46,7 @@ public class RolesController {
         try {
             return ResponseEntity.ok(consultar.rolDe(matchId, userId));
         } catch (RolNoAsignadoException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", e.getMessage()));
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of(ERROR, e.getMessage()));
         }
     }
 
@@ -53,7 +55,7 @@ public class RolesController {
         try {
             return ResponseEntity.ok(consultar.rolesDelEquipo(matchId, equipoId));
         } catch (RolNoAsignadoException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", e.getMessage()));
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of(ERROR, e.getMessage()));
         }
     }
 }

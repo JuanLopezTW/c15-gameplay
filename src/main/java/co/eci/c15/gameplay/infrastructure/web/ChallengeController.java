@@ -19,6 +19,8 @@ import java.util.Map;
 @RequestMapping("/api/partidas/{matchId}/reto")
 public class ChallengeController {
 
+    private static final String ERROR = "error";
+
     private final HeroVillainChallengeService challenges;
 
     public ChallengeController(HeroVillainChallengeService challenges) {
@@ -31,9 +33,9 @@ public class ChallengeController {
             challenges.click(matchId, yo.getName());
             return ResponseEntity.noContent().build();
         } catch (ChallengeNotActiveException e) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("error", e.getMessage()));
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of(ERROR, e.getMessage()));
         } catch (NotInChallengeException e) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("error", e.getMessage()));
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of(ERROR, e.getMessage()));
         }
     }
 
@@ -42,6 +44,6 @@ public class ChallengeController {
         return challenges.find(matchId)
                 .<ResponseEntity<?>>map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body(Map.of("error", "No hay un reto en curso en la partida " + matchId)));
+                        .body(Map.of(ERROR, "No hay un reto en curso en la partida " + matchId)));
     }
 }

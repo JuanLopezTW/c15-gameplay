@@ -22,7 +22,7 @@ public record SesionEvent(String estado, String ambito, String id, String userId
         return SALA.equals(ambito);
     }
 
-    public boolean abierta() {
+    public boolean estaAbierta() {
         return ABIERTA.equals(estado);
     }
 }

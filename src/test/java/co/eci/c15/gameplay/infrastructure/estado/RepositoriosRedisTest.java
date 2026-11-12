@@ -23,7 +23,7 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-/** Cada repositorio de gameplay contra un Redis real: lo que se guarda vuelve igual y todo caduca. */
+/** Cada repositorio de gameplay contra un Redis real: lo que se guarda vuelve igual y cada clave caduca. */
 class RepositoriosRedisTest extends RedisDePrueba {
 
     private static final Instant AHORA = Instant.parse("2026-11-03T15:00:00Z");

@@ -12,6 +12,7 @@ import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.annotation.Primary;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
@@ -32,6 +33,9 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 @Component
 @ConditionalOnProperty(name = "c15.eventos.kafka", havingValue = "true")
+// Nunca convive con el adaptador asincrono en memoria (lo decide c15.eventos.kafka); @Primary solo le aclara
+// al analisis estatico cual usar, porque no evalua el interruptor.
+@Primary
 public class EventosEntreServiciosKafka implements EventosEntreServicios, SeguimientoEventos {
 
     static final String HEADER_ID = "c15-evento-id";

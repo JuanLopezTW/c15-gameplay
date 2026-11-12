@@ -56,7 +56,7 @@ class GanarPartidaFlujoTest {
     @Test
     void resolverTodosLosAcertijosTerminaLaPartidaYGanaElDeMasPuntaje() throws Exception {
         Map<String, String> teamOf = new LinkedHashMap<>();
-        String matchId = partidaIniciada("Sala ganar", teamOf);
+        String matchId = partidaIniciada(teamOf);
         String equipoA = teamOf.get("ana");
         String equipoB = teamOf.get("caro");
 
@@ -105,7 +105,7 @@ class GanarPartidaFlujoTest {
     @Test
     void siSeAcabaElTiempoIgualadosEsEmpate() throws Exception {
         Map<String, String> teamOf = new LinkedHashMap<>();
-        String matchId = partidaIniciada("Sala empate", teamOf);
+        String matchId = partidaIniciada(teamOf);
 
         events.publishEvent(new AcertijoResueltoEvent(matchId, teamOf.get("ana"), "acertijo-1", "ana"));
         events.publishEvent(new AcertijoResueltoEvent(matchId, teamOf.get("caro"), "acertijo-2", "caro"));
@@ -131,7 +131,7 @@ class GanarPartidaFlujoTest {
     }
 
     /** Lo que publica salas al arrancar: dos equipos (ana y beto, caro y dani) y 10 minutos de partida. */
-    private String partidaIniciada(String nombre, Map<String, String> teamOf) {
+    private String partidaIniciada(Map<String, String> teamOf) {
         String matchId = "m-" + java.util.UUID.randomUUID();
         String equipo1 = matchId + "-e1";
         String equipo2 = matchId + "-e2";

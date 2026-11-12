@@ -19,7 +19,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Recoleccion de objetos del mapa e inventario compartido por equipo (HU-31.5). El jugador debe
- * estar junto al objeto; lo que recolecta pasa al inventario de todo su equipo, y cada cambio se
+ * estar junto al objeto; lo que recolecta pasa al inventario del equipo completo, y cada cambio se
  * avisa en tiempo real a los miembros del equipo.
  */
 @Service

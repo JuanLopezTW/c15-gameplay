@@ -17,6 +17,8 @@ import java.util.Map;
 @RequestMapping("/api/partidas/{matchId}/acertijos/{componenteMapaId}/bloqueo")
 public class AcertijoController {
 
+    private static final String ERROR = "error";
+
     private final AbrirAcertijoUseCase useCase;
 
     public AcertijoController(AbrirAcertijoUseCase useCase) {
@@ -30,11 +32,11 @@ public class AcertijoController {
         try {
             return ResponseEntity.ok(useCase.ejecutar(matchId, componenteMapaId, yo.getName()));
         } catch (JugadorNoRegistradoException | ComponenteSinAcertijoException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", e.getMessage()));
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of(ERROR, e.getMessage()));
         } catch (AcertijoBloqueadoException | OtroAcertijoAbiertoException e) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("error", e.getMessage()));
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of(ERROR, e.getMessage()));
         } catch (AcertijoLejosException e) {
-            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+            return ResponseEntity.badRequest().body(Map.of(ERROR, e.getMessage()));
         }
     }
 
@@ -46,7 +48,7 @@ public class AcertijoController {
             useCase.cerrar(matchId, componenteMapaId, yo.getName());
             return ResponseEntity.noContent().build();
         } catch (JugadorNoRegistradoException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", e.getMessage()));
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of(ERROR, e.getMessage()));
         }
     }
 }

@@ -30,7 +30,7 @@ public class InventarioController {
         this.consultar = consultar;
     }
 
-    /** Recolecta un objeto del mapa y lo agrega al inventario de todo el equipo. */
+    /** Recolecta un objeto del mapa y lo agrega al inventario del equipo completo. */
     @PostMapping("/objetos/{componenteMapaId}/recoleccion")
     public ResponseEntity<?> recolectar(@PathVariable("matchId") String matchId,
                                         @PathVariable("componenteMapaId") String componenteMapaId, Principal yo) {

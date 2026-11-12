@@ -174,7 +174,7 @@ public class TiempoPartidaEnMemoria {
     static class Resultados implements ResultadosPartida {
         private final Map<String, Map<String, List<String>>> equipos = new ConcurrentHashMap<>();
         private final Map<String, Map<String, Integer>> retosGanados = new ConcurrentHashMap<>();
-        private final Map<String, MatchResult> resultados = new ConcurrentHashMap<>();
+        private final Map<String, MatchResult> terminados = new ConcurrentHashMap<>();
 
         @Override
         public void guardarEquipos(String matchId, Map<String, List<String>> equiposDePartida) {
@@ -198,12 +198,12 @@ public class TiempoPartidaEnMemoria {
 
         @Override
         public boolean guardar(MatchResult resultado) {
-            return resultados.putIfAbsent(resultado.matchId(), resultado) == null;
+            return terminados.putIfAbsent(resultado.matchId(), resultado) == null;
         }
 
         @Override
         public Optional<MatchResult> find(String matchId) {
-            return Optional.ofNullable(resultados.get(matchId));
+            return Optional.ofNullable(terminados.get(matchId));
         }
     }
 }

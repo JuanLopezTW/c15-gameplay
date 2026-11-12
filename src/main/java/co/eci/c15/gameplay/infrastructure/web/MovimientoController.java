@@ -19,6 +19,8 @@ import java.util.Map;
 @RequestMapping("/api/partidas/{matchId}/jugadores/{userId}")
 public class MovimientoController {
 
+    private static final String ERROR = "error";
+
     public record MoverRequest(int x, int y) {}
 
     private final MoverPersonajeUseCase mover;
@@ -32,15 +34,15 @@ public class MovimientoController {
                                    @PathVariable("userId") String userId,
                                    @RequestBody MoverRequest body, Principal yo) {
         if (!userId.equals(yo.getName())) {
-            return ResponseEntity.status(403).body(Map.of("error", "Solo puedes mover a tu propio personaje"));
+            return ResponseEntity.status(403).body(Map.of(ERROR, "Solo puedes mover a tu propio personaje"));
         }
         try {
             MovimientoDto dto = mover.ejecutar(matchId, userId, new Posicion(body.x(), body.y()));
             return ResponseEntity.ok(dto);
         } catch (JugadorNoRegistradoException e) {
-            return ResponseEntity.status(404).body(Map.of("error", e.getMessage()));
+            return ResponseEntity.status(404).body(Map.of(ERROR, e.getMessage()));
         } catch (MovimientoInvalidoException | IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+            return ResponseEntity.badRequest().body(Map.of(ERROR, e.getMessage()));
         }
     }
 }

@@ -21,19 +21,21 @@ import java.util.function.Function;
  */
 final class TopicosEventos {
 
+    private static final String LLAVE_PARTIDA = "matchId";
+
     /** Un evento que cruza servicios: su topic (sin prefijo), su clase y de donde sale la llave. */
     record Topico(String nombre, Class<?> tipo, Function<Object, String> llave, String campoLog) {
     }
 
     static final List<Topico> TODOS = List.of(
             new Topico("partida-iniciada", PartidaIniciadaEvent.class,
-                    e -> ((PartidaIniciadaEvent) e).matchId(), "matchId"),
+                    e -> ((PartidaIniciadaEvent) e).matchId(), LLAVE_PARTIDA),
             new Topico("partida-terminada", MatchFinishedEvent.class,
-                    e -> ((MatchFinishedEvent) e).matchId(), "matchId"),
+                    e -> ((MatchFinishedEvent) e).matchId(), LLAVE_PARTIDA),
             new Topico("sala-cerrada", SalaCerradaEvent.class,
                     e -> ((SalaCerradaEvent) e).salaId(), "salaId"),
             new Topico("sesion", SesionEvent.class,
-                    e -> ((SesionEvent) e).id(), "matchId"));
+                    e -> ((SesionEvent) e).id(), LLAVE_PARTIDA));
 
     /** Los que escucha este servicio: el inicio (arma la partida), su propio fin (libera estado) y las sesiones del mapa. */
     static final List<String> ESCUCHADOS = List.of("partida-iniciada", "partida-terminada", "sesion");

@@ -21,7 +21,7 @@ public class SesionesPartidaListener {
 
     @EventListener
     public void onSesion(SesionEvent sesion) {
-        if (SesionEvent.PARTIDA.equals(sesion.ambito()) && !sesion.abierta()) {
+        if (SesionEvent.PARTIDA.equals(sesion.ambito()) && !sesion.estaAbierta()) {
             desconectar.ejecutar(sesion.id(), sesion.userId());
         }
     }

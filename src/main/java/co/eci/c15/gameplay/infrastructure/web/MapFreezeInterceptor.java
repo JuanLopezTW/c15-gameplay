@@ -10,6 +10,8 @@ import org.springframework.http.MediaType;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.HandlerMapping;
 
+import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -19,11 +21,10 @@ import java.util.Map;
  */
 public class MapFreezeInterceptor implements HandlerInterceptor {
 
-    public static final String[] FROZEN_PATHS = {
+    public static final List<String> FROZEN_PATHS = List.of(
             "/api/partidas/*/jugadores/*/movimiento",
             "/api/partidas/*/acertijos/**",
-            "/api/partidas/*/objetos/**"
-    };
+            "/api/partidas/*/objetos/**");
 
     private final HeroVillainChallengeService challenges;
     private final MatchResultService results;
@@ -45,7 +46,7 @@ public class MapFreezeInterceptor implements HandlerInterceptor {
         return true;
     }
 
-    private boolean reject(HttpServletResponse response, String message) throws Exception {
+    private boolean reject(HttpServletResponse response, String message) throws IOException {
         response.setStatus(HttpStatus.CONFLICT.value());
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setCharacterEncoding("UTF-8");

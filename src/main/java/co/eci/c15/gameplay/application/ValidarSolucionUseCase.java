@@ -22,7 +22,7 @@ import java.util.List;
 /**
  * Validacion de la solucion de un acertijo (HU-29.5). Quien lo tiene abierto envia una
  * respuesta, o se toma lo que ingreso con clicks. Si es correcta el acertijo queda resuelto
- * para todo su equipo, el jugador queda libre para moverse y se publica el evento de
+ * para el equipo completo, el jugador queda libre para moverse y se publica el evento de
  * acertijo resuelto; si no, se descarta lo ingresado y puede volver a intentar.
  */
 @Service

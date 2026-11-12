@@ -6,6 +6,6 @@ package co.eci.c15.plataforma.eventos;
  */
 public interface SeguimientoEventos {
 
-    /** Si ya se entrego todo lo que esta instancia publico. */
+    /** Si ya se entrego lo que esta instancia publico. */
     boolean entregados();
 }

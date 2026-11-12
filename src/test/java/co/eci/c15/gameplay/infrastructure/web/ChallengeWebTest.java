@@ -8,7 +8,6 @@ import co.eci.c15.gameplay.domain.NotInChallengeException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.web.servlet.MockMvc;
@@ -37,10 +36,6 @@ class ChallengeWebTest {
         mvc = MockMvcBuilders.standaloneSetup(new ChallengeController(service)).build();
         results = mock(MatchResultService.class);
         interceptor = new MapFreezeInterceptor(service, results, new ObjectMapper());
-    }
-
-    private static String click(String userId) {
-        return "{\"userId\":\"" + userId + "\"}";
     }
 
     @Test

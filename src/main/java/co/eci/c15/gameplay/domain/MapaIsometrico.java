@@ -67,7 +67,7 @@ public final class MapaIsometrico {
         return Optional.of(ruta);
     }
 
-    /** Todo componente tiene al menos una celda vecina alcanzable desde el spawn. */
+    /** Cada componente tiene al menos una celda vecina alcanzable desde el spawn. */
     public boolean todosAccesibles() {
         Set<Posicion> alcanzables = recorrer(spawn).keySet();
         for (ComponenteMapa c : componentes) {

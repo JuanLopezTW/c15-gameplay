@@ -110,7 +110,7 @@ public final class AcertijoEnPartida {
         Objects.requireNonNull(userId);
         if (estado == Estado.RESUELTO) throw new AcertijoYaResueltoException(componenteMapaId);
         verificarPoseedor(userId);
-        List<String> candidata = respuesta != null ? List.copyOf(respuesta) : List.copyOf(entrada);
+        List<String> candidata = List.copyOf(respuesta != null ? respuesta : entrada);
         if (esCorrecta.test(candidata)) {
             marcarResuelto();
             return Resultado.CORRECTA;

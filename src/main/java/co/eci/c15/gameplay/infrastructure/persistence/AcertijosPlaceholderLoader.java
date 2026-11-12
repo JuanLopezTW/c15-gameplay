@@ -20,7 +20,7 @@ public class AcertijosPlaceholderLoader implements ApplicationRunner {
 
     private record Placeholder(String componente, String enunciado, List<String[]> elementos) {}
 
-    private static final List<Placeholder> ACERTIJOS = List.of(
+    private static final List<Placeholder> PLACEHOLDERS = List.of(
             new Placeholder("acertijo-1",
                     "Encuentra el número que falta en la secuencia: 2, 4, 8, ?, 32.",
                     List.<String[]>of(new String[]{"campo-numero", "Respuesta numérica"})),
@@ -42,7 +42,7 @@ public class AcertijosPlaceholderLoader implements ApplicationRunner {
     @Override
     @Transactional
     public void run(ApplicationArguments args) {
-        for (Placeholder p : ACERTIJOS) {
+        for (Placeholder p : PLACEHOLDERS) {
             if (acertijos.findByComponenteMapaId(p.componente()).isPresent()) continue;
             String acertijoId = "placeholder-" + p.componente();
             acertijos.save(new Acertijo(acertijoId, p.componente(), p.enunciado()));
