@@ -38,6 +38,7 @@ import java.util.random.RandomGenerator;
 @Service
 public class HeroVillainChallengeService {
 
+    private static final String MATCH_ID = "matchId";
     private static final Logger log = LoggerFactory.getLogger(HeroVillainChallengeService.class);
     public static final Duration BROADCAST_INTERVAL = Duration.ofMillis(200);
 
@@ -86,7 +87,7 @@ public class HeroVillainChallengeService {
                 .ifPresent(r -> rolesByTeam.put(team, r)));
         if (rolesByTeam.size() < 2) {
             retos.cancelar(matchId);
-            EventoNegocio.de(log, "reto.sin-roles").con("matchId", matchId).warn();
+            EventoNegocio.de(log, "reto.sin-roles").con(MATCH_ID, matchId).warn();
             return false;
         }
 
@@ -95,7 +96,7 @@ public class HeroVillainChallengeService {
         Map<String, Long> ceros = new LinkedHashMap<>();
         rolesByTeam.keySet().stream().sorted().forEach(team -> ceros.put(team, 0L));
         notifier.notify(new ChallengeState(matchId, ChallengeState.STARTED, restantes(endsAt), ceros, null));
-        EventoNegocio.de(log, "reto.iniciado").con("matchId", matchId).con("segundos", challengeDuration.toSeconds()).info();
+        EventoNegocio.de(log, "reto.iniciado").con(MATCH_ID, matchId).con("segundos", challengeDuration.toSeconds()).info();
         return true;
     }
 
@@ -116,7 +117,7 @@ public class HeroVillainChallengeService {
         Optional<ChallengeResult> cerrado = retos.terminar(matchId);
         cerrado.ifPresent(result -> {
             notifier.notify(new ChallengeState(matchId, ChallengeState.FINISHED, 0, result.scores(), result.winnerTeamId()));
-            EventoNegocio.de(log, "reto.terminado").con("matchId", matchId).con("equipoGanadorId", result.winnerTeamId())
+            EventoNegocio.de(log, "reto.terminado").con(MATCH_ID, matchId).con("equipoGanadorId", result.winnerTeamId())
                     .con("puntajes", result.scores()).info();
             events.publishEvent(new ChallengeFinishedEvent(matchId, result.winnerTeamId(), result.scores()));
         });

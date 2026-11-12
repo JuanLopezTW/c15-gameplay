@@ -23,7 +23,7 @@ public class ProgresoController {
 
     /** Progreso actual de todos los equipos (para pintar el marcador al entrar o recargar). */
     @GetMapping
-    public ResponseEntity<?> consultar(@PathVariable("matchId") String matchId) {
+    public ResponseEntity<Object> consultar(@PathVariable("matchId") String matchId) {
         ProgresoPartidaDto progreso = useCase.consultar(matchId);
         if (progreso.equipos().isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)

@@ -32,7 +32,7 @@ public class InventarioController {
 
     /** Recolecta un objeto del mapa y lo agrega al inventario del equipo completo. */
     @PostMapping("/objetos/{componenteMapaId}/recoleccion")
-    public ResponseEntity<?> recolectar(@PathVariable("matchId") String matchId,
+    public ResponseEntity<Object> recolectar(@PathVariable("matchId") String matchId,
                                         @PathVariable("componenteMapaId") String componenteMapaId, Principal yo) {
         try {
             return ResponseEntity.ok(recolectar.ejecutar(matchId, yo.getName(), componenteMapaId));
@@ -47,7 +47,7 @@ public class InventarioController {
 
     /** Inventario actual del equipo (para pintarlo al entrar o recargar). */
     @GetMapping("/equipos/{equipoId}/inventario")
-    public ResponseEntity<?> inventario(@PathVariable("matchId") String matchId,
+    public ResponseEntity<Object> inventario(@PathVariable("matchId") String matchId,
                                         @PathVariable("equipoId") String equipoId, Principal yo) {
         try {
             return ResponseEntity.ok(consultar.ejecutar(matchId, equipoId, yo.getName()));
@@ -58,7 +58,7 @@ public class InventarioController {
         }
     }
 
-    private static ResponseEntity<?> error(HttpStatus status, String mensaje) {
+    private static ResponseEntity<Object> error(HttpStatus status, String mensaje) {
         return ResponseEntity.status(status).body(Map.of("error", mensaje));
     }
 }

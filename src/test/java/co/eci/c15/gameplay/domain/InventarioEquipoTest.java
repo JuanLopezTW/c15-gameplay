@@ -47,7 +47,8 @@ class InventarioEquipoTest {
     void laListaDevueltaEsUnaCopia() {
         InventarioEquipo inv = new InventarioEquipo("m1", "e1");
         inv.agregar(objeto("llave-1", "ana"));
-        assertThrows(UnsupportedOperationException.class, () -> inv.getObjetos().clear());
+        List<ObjetoInventario> vista = inv.getObjetos();
+        assertThrows(UnsupportedOperationException.class, vista::clear);
     }
 
     @Test

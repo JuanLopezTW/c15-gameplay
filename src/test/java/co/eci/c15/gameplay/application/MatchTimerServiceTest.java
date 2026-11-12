@@ -93,7 +93,7 @@ class MatchTimerServiceTest {
         clock.advance(Duration.ofSeconds(5));
         service.tick("m1");
         service.tick("m1");
-        assertEquals(1, events.stream().filter(e -> e instanceof TimeUpEvent).count());
+        assertEquals(1, events.stream().filter(TimeUpEvent.class::isInstance).count());
         assertTrue(service.find("m1").isEmpty());
     }
 

@@ -1,5 +1,7 @@
 package co.eci.c15.gameplay.infrastructure.estado;
 
+import java.time.Duration;
+import static org.awaitility.Awaitility.await;
 import co.eci.c15.common.events.MatchFinishedEvent;
 import co.eci.c15.gameplay.domain.GeneradorMapa;
 import co.eci.c15.gameplay.domain.JugadorEnMapa;
@@ -30,10 +32,12 @@ class FinPartidaRedisListenerTest extends RedisDePrueba {
             c.start();
         }
         try {
-            Thread.sleep(300); // que se suscriban
-            enA.onPartidaTerminada(new MatchFinishedEvent("m1", "TIME_UP", "e1", Map.of("e1", 1), Map.of()));
-
-            for (int i = 0; i < 50 && instanciaB.tieneCopia("m1"); i++) Thread.sleep(50);
+            // El aviso se repite hasta que la otra instancia ya este suscrita y lo reciba (repetirlo no cambia nada)
+            MatchFinishedEvent fin = new MatchFinishedEvent("m1", "TIME_UP", "e1", Map.of("e1", 1), Map.of());
+            await().atMost(Duration.ofSeconds(5)).until(() -> {
+                enA.onPartidaTerminada(fin);
+                return !instanciaB.tieneCopia("m1");
+            });
             assertFalse(instanciaA.tieneCopia("m1"));
             assertFalse(instanciaB.tieneCopia("m1"), "la otra instancia recibio el aviso");
             long vida = segundosDeVida(EstadoPartidaRedis.clave("m1", "jugadores"));

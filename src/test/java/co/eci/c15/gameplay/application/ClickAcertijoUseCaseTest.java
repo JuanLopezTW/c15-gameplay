@@ -165,8 +165,8 @@ class ClickAcertijoUseCaseTest {
         assertThrows(ComponenteSinAcertijoException.class, () -> clicks.click(MATCH, "acertijo-99", "ana", "lista", "x"));
         assertThrows(ElementoNoValidoException.class, () -> clicks.click(MATCH, "acertijo-1", "ana", "otro", "x"));
         assertThrows(ElementoNoValidoException.class, () -> clicks.click(MATCH, "acertijo-1", "ana", null, "x"));
-        assertThrows(IllegalArgumentException.class,
-                () -> clicks.click(MATCH, "acertijo-1", "ana", "lista", "x".repeat(ClickAcertijoUseCase.MAX_LONGITUD_VALOR + 1)));
+        String muyLargo = "x".repeat(ClickAcertijoUseCase.MAX_LONGITUD_VALOR + 1);
+        assertThrows(IllegalArgumentException.class, () -> clicks.click(MATCH, "acertijo-1", "ana", "lista", muyLargo));
         AcertijoEnPartida estado = estados.obtener(MATCH, "e1", "acertijo-1");
         assertTrue(estado.getEntrada().isEmpty());
     }

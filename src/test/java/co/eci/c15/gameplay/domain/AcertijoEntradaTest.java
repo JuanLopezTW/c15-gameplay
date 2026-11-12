@@ -121,7 +121,8 @@ class AcertijoEntradaTest {
         abrirPara("ana");
         List<String> copia = acertijo.registrarClick("ana", "rojo");
         assertThrows(UnsupportedOperationException.class, () -> copia.add("trampa"));
-        assertThrows(UnsupportedOperationException.class, () -> acertijo.getEntrada().add("trampa"));
+        List<String> vista = acertijo.getEntrada();
+        assertThrows(UnsupportedOperationException.class, () -> vista.add("trampa"));
     }
 
     @Test

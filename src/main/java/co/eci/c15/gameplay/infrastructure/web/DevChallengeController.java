@@ -25,7 +25,7 @@ public class DevChallengeController {
     }
 
     @PostMapping("/{matchId}/reto/inicio")
-    public ResponseEntity<?> start(@PathVariable("matchId") String matchId) {
+    public ResponseEntity<Object> start(@PathVariable("matchId") String matchId) {
         if (challenges.start(matchId)) return ResponseEntity.ok(challenges.find(matchId).orElseThrow());
         return ResponseEntity.status(HttpStatus.CONFLICT)
                 .body(Map.of("error", "La partida " + matchId + " no existe o ya tuvo su reto"));

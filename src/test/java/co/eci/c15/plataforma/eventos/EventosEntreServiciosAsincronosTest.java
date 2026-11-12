@@ -41,11 +41,11 @@ class EventosEntreServiciosAsincronosTest {
     }
 
     @Test
-    void conTransaccionSoloSeEntregaDespuesDelCommit() throws Exception {
+    void conTransaccionSoloSeEntregaDespuesDelCommit() {
         TransactionSynchronizationManager.initSynchronization();
         publicador.publicar("inicio");
-        Thread.sleep(200);
-        assertTrue(entregados.isEmpty(), "antes del commit no sale nada");
+        // Antes del commit no sale nada (durante todo el rato, no solo al final)
+        await().during(Duration.ofMillis(200)).atMost(Duration.ofSeconds(2)).until(entregados::isEmpty);
 
         TransactionSynchronizationManager.getSynchronizations().forEach(TransactionSynchronization::afterCommit);
 
@@ -53,14 +53,12 @@ class EventosEntreServiciosAsincronosTest {
     }
 
     @Test
-    void siLaTransaccionSeDeshaceNoSeEntrega() throws Exception {
+    void siLaTransaccionSeDeshaceNoSeEntrega() {
         TransactionSynchronizationManager.initSynchronization();
         publicador.publicar("inicio");
         TransactionSynchronizationManager.getSynchronizations()
                 .forEach(s -> s.afterCompletion(TransactionSynchronization.STATUS_ROLLED_BACK));
-        Thread.sleep(200);
-
-        assertTrue(entregados.isEmpty());
+        await().during(Duration.ofMillis(200)).atMost(Duration.ofSeconds(2)).until(entregados::isEmpty);
     }
 
     @Test

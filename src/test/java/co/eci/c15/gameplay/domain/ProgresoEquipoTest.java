@@ -52,14 +52,16 @@ class ProgresoEquipoTest {
     void rechazaDatosInvalidos() {
         assertThrows(IllegalArgumentException.class, () -> new ProgresoEquipo("m1", "e1", -1));
         assertThrows(NullPointerException.class, () -> new ProgresoEquipo(null, "e1", 1));
-        assertThrows(NullPointerException.class, () -> new ProgresoEquipo("m1", "e1", 1).registrarResuelto(null));
+        ProgresoEquipo progreso = new ProgresoEquipo("m1", "e1", 1);
+        assertThrows(NullPointerException.class, () -> progreso.registrarResuelto(null));
     }
 
     @Test
     void laListaDevueltaEsUnaCopia() {
         ProgresoEquipo p = new ProgresoEquipo("m1", "e1", 3);
         p.registrarResuelto("a");
-        assertThrows(UnsupportedOperationException.class, () -> p.getResueltos().add("trampa"));
+        List<String> vista = p.getResueltos();
+        assertThrows(UnsupportedOperationException.class, () -> vista.add("trampa"));
     }
 
     @Test

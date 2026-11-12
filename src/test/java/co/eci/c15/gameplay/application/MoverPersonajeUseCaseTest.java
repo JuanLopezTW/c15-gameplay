@@ -94,16 +94,19 @@ class MoverPersonajeUseCaseTest {
 
     @Test
     void jugadorNoRegistradoLanzaExcepcion() {
-        assertThrows(JugadorNoRegistradoException.class, () -> mover.ejecutar(MATCH, "fantasma", celdaLibreAlcanzable()));
-        assertThrows(JugadorNoRegistradoException.class, () -> mover.ejecutar("otra", "u1", celdaLibreAlcanzable()));
+        Posicion libre = celdaLibreAlcanzable();
+        assertThrows(JugadorNoRegistradoException.class, () -> mover.ejecutar(MATCH, "fantasma", libre));
+        assertThrows(JugadorNoRegistradoException.class, () -> mover.ejecutar("otra", "u1", libre));
     }
 
     @Test
     void clickFueraDelMapaOSobreComponenteNoMueveNiPublica() {
         ComponenteMapa componente = mapa.getComponentes().get(0);
 
-        assertThrows(MovimientoInvalidoException.class, () -> mover.ejecutar(MATCH, "u1", new Posicion(99, 99)));
-        assertThrows(MovimientoInvalidoException.class, () -> mover.ejecutar(MATCH, "u1", componente.posicion()));
+        Posicion fueraDelMapa = new Posicion(99, 99);
+        Posicion ocupada = componente.posicion();
+        assertThrows(MovimientoInvalidoException.class, () -> mover.ejecutar(MATCH, "u1", fueraDelMapa));
+        assertThrows(MovimientoInvalidoException.class, () -> mover.ejecutar(MATCH, "u1", ocupada));
 
         assertEquals(mapa.getSpawn(), jugadores.find(MATCH, "u1").orElseThrow().getPosicion());
         assertTrue(publicados.isEmpty());

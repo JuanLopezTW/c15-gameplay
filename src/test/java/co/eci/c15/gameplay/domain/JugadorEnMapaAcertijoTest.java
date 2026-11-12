@@ -53,7 +53,8 @@ class JugadorEnMapaAcertijoTest {
     void conUnAcertijoAbiertoNoPuedeMoverse() {
         JugadorEnMapa jugador = new JugadorEnMapa("match-1", "equipo-1", "ana", new Posicion(2, 3));
         jugador.abrirAcertijo(ACERTIJO_1, () -> { });
-        assertThrows(MovimientoInvalidoException.class, () -> jugador.mover(mapa, new Posicion(0, 3)));
+        Posicion lejos = new Posicion(0, 3);
+        assertThrows(MovimientoInvalidoException.class, () -> jugador.mover(mapa, lejos));
         assertEquals(new Posicion(2, 3), jugador.getPosicion());
     }
 

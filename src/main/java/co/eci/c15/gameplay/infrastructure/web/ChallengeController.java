@@ -28,7 +28,7 @@ public class ChallengeController {
     }
 
     @PostMapping("/clicks")
-    public ResponseEntity<?> click(@PathVariable("matchId") String matchId, Principal yo) {
+    public ResponseEntity<Object> click(@PathVariable("matchId") String matchId, Principal yo) {
         try {
             challenges.click(matchId, yo.getName());
             return ResponseEntity.noContent().build();
@@ -40,9 +40,9 @@ public class ChallengeController {
     }
 
     @GetMapping
-    public ResponseEntity<?> state(@PathVariable("matchId") String matchId) {
+    public ResponseEntity<Object> state(@PathVariable("matchId") String matchId) {
         return challenges.find(matchId)
-                .<ResponseEntity<?>>map(ResponseEntity::ok)
+                .<ResponseEntity<Object>>map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND)
                         .body(Map.of(ERROR, "No hay un reto en curso en la partida " + matchId)));
     }

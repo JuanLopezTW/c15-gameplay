@@ -63,7 +63,8 @@ class PosicionesEquipoTest {
 
     @Test
     void movimientoInvalidoNoAvisaANadie() {
-        assertThrows(RuntimeException.class, () -> mover.ejecutar(MATCH, "a1", new Posicion(99, 99)));
+        Posicion fueraDelMapa = new Posicion(99, 99);
+        assertThrows(RuntimeException.class, () -> mover.ejecutar(MATCH, "a1", fueraDelMapa));
         assertTrue(enviados.isEmpty());
     }
 

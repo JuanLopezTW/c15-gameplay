@@ -1,5 +1,6 @@
 package co.eci.c15.gameplay.infrastructure.estado;
 
+import static org.awaitility.Awaitility.await;
 import co.eci.c15.gameplay.application.RetosPartida;
 import co.eci.c15.gameplay.domain.ChallengeNotActiveException;
 import co.eci.c15.gameplay.domain.ChallengeResult;
@@ -122,7 +123,8 @@ class TiempoPartidaRedisTest extends RedisDePrueba {
         retos.iniciar("m1", ROLES, AHORA.plusSeconds(20));
 
         assertThrows(NotInChallengeException.class, () -> retos.click("m1", "intruso", AHORA));
-        assertThrows(ChallengeNotActiveException.class, () -> retos.click("m1", "ana", AHORA.plusSeconds(20)));
+        Instant alTerminar = AHORA.plusSeconds(20);
+        assertThrows(ChallengeNotActiveException.class, () -> retos.click("m1", "ana", alTerminar));
         assertThrows(ChallengeNotActiveException.class, () -> retos.click("otra", "ana", AHORA));
     }
 
@@ -166,7 +168,8 @@ class TiempoPartidaRedisTest extends RedisDePrueba {
             }));
         }
         largada.countDown();
-        Thread.sleep(5);
+        // Se cierra en plena carrera, con clicks ya contados
+        await().atMost(Duration.ofSeconds(5)).until(() -> contadosA.get() > 0);
         ChallengeResult resultado = instanciaB.terminar("m1").orElseThrow();
         for (Future<?> t : tareas) t.get(30, TimeUnit.SECONDS);
         hilos.shutdown();

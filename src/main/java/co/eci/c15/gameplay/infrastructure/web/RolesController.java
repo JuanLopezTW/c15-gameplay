@@ -33,7 +33,7 @@ public class RolesController {
 
     /** Asigna los roles de todos los equipos (el arranque normal lo hace el evento de inicio de partida). */
     @PostMapping("/roles")
-    public ResponseEntity<?> asignar(@PathVariable("matchId") String matchId, @RequestBody AsignarRequest body) {
+    public ResponseEntity<Object> asignar(@PathVariable("matchId") String matchId, @RequestBody AsignarRequest body) {
         try {
             return ResponseEntity.ok(asignar.ejecutar(matchId, body.equipos()));
         } catch (IllegalArgumentException e) {
@@ -42,7 +42,7 @@ public class RolesController {
     }
 
     @GetMapping("/jugadores/{userId}/rol")
-    public ResponseEntity<?> rolDe(@PathVariable("matchId") String matchId, @PathVariable("userId") String userId) {
+    public ResponseEntity<Object> rolDe(@PathVariable("matchId") String matchId, @PathVariable("userId") String userId) {
         try {
             return ResponseEntity.ok(consultar.rolDe(matchId, userId));
         } catch (RolNoAsignadoException e) {
@@ -51,7 +51,7 @@ public class RolesController {
     }
 
     @GetMapping("/equipos/{equipoId}/roles")
-    public ResponseEntity<?> rolesDelEquipo(@PathVariable("matchId") String matchId, @PathVariable("equipoId") String equipoId) {
+    public ResponseEntity<Object> rolesDelEquipo(@PathVariable("matchId") String matchId, @PathVariable("equipoId") String equipoId) {
         try {
             return ResponseEntity.ok(consultar.rolesDelEquipo(matchId, equipoId));
         } catch (RolNoAsignadoException e) {

@@ -33,7 +33,7 @@ public class AcertijoClicksController {
 
     /** Click sobre un elemento del acertijo que el jugador tiene abierto. */
     @PostMapping
-    public ResponseEntity<?> click(@PathVariable("matchId") String matchId,
+    public ResponseEntity<Object> click(@PathVariable("matchId") String matchId,
                                    @PathVariable("componenteMapaId") String componenteMapaId,
                                    @RequestBody Map<String, String> body, Principal yo) {
         return responder(() -> useCase.click(matchId, componenteMapaId, yo.getName(), body.get("elementoId"), body.get("valor")));
@@ -41,19 +41,19 @@ public class AcertijoClicksController {
 
     /** Estado actual de lo ingresado por el equipo. */
     @GetMapping
-    public ResponseEntity<?> consultar(@PathVariable("matchId") String matchId,
+    public ResponseEntity<Object> consultar(@PathVariable("matchId") String matchId,
                                        @PathVariable("componenteMapaId") String componenteMapaId, Principal yo) {
         return responder(() -> useCase.consultar(matchId, componenteMapaId, yo.getName()));
     }
 
     /** Borra lo ingresado para empezar de nuevo. */
     @DeleteMapping
-    public ResponseEntity<?> reiniciar(@PathVariable("matchId") String matchId,
+    public ResponseEntity<Object> reiniciar(@PathVariable("matchId") String matchId,
                                        @PathVariable("componenteMapaId") String componenteMapaId, Principal yo) {
         return responder(() -> useCase.reiniciar(matchId, componenteMapaId, yo.getName()));
     }
 
-    private ResponseEntity<?> responder(Supplier<Object> accion) {
+    private ResponseEntity<Object> responder(Supplier<Object> accion) {
         try {
             return ResponseEntity.ok(accion.get());
         } catch (JugadorNoRegistradoException | ComponenteSinAcertijoException e) {
@@ -65,7 +65,7 @@ public class AcertijoClicksController {
         }
     }
 
-    private static ResponseEntity<?> error(HttpStatus status, String mensaje) {
+    private static ResponseEntity<Object> error(HttpStatus status, String mensaje) {
         return ResponseEntity.status(status).body(Map.of("error", mensaje));
     }
 }

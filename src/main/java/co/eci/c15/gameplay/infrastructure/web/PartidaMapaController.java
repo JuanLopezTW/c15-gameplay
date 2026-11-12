@@ -23,7 +23,7 @@ public class PartidaMapaController {
     }
 
     @GetMapping
-    public ResponseEntity<?> obtener(@PathVariable("matchId") String matchId) {
+    public ResponseEntity<Object> obtener(@PathVariable("matchId") String matchId) {
         try {
             MapaDto dto = obtenerMapa.ejecutar(matchId);
             return ResponseEntity.ok(dto);

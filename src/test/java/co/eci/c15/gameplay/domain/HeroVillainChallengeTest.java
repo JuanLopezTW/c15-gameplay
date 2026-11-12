@@ -1,5 +1,7 @@
 package co.eci.c15.gameplay.domain;
 
+import java.time.Duration;
+import static org.awaitility.Awaitility.await;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -109,8 +111,8 @@ class HeroVillainChallengeTest {
 
     @Test
     void needsAtLeastTwoTeams() {
-        assertThrows(IllegalArgumentException.class,
-                () -> new HeroVillainChallenge("m1", Map.of("A", Map.of("ana", Rol.HEROE)), ENDS));
+        Map<String, Map<String, Rol>> unSoloEquipo = Map.of("A", Map.of("ana", Rol.HEROE));
+        assertThrows(IllegalArgumentException.class, () -> new HeroVillainChallenge("m1", unSoloEquipo, ENDS));
     }
 
     @Test
@@ -167,7 +169,8 @@ class HeroVillainChallengeTest {
             }));
         }
         go.countDown();
-        Thread.sleep(50);
+        // Se cierra en plena carrera, con clicks ya aceptados
+        await().atMost(Duration.ofSeconds(5)).until(() -> acceptedA.get() + acceptedB.get() > 0);
         ChallengeResult result = race.finish();
         for (Future<?> f : futures) f.get(30, TimeUnit.SECONDS);
         pool.shutdown();

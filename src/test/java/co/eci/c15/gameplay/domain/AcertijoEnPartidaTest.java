@@ -47,8 +47,8 @@ class AcertijoEnPartidaTest {
     @Test
     void otroJugadorNoPuedeTomarloMientrasEsteVigente() {
         acertijo.bloquear("ana", T0, TTL, u -> true);
-        assertThrows(AcertijoBloqueadoException.class,
-                () -> acertijo.bloquear("beto", T0.plusSeconds(60), TTL, u -> true));
+        Instant unMinutoDespues = T0.plusSeconds(60);
+        assertThrows(AcertijoBloqueadoException.class, () -> acertijo.bloquear("beto", unMinutoDespues, TTL, u -> true));
         assertEquals(Optional.of("ana"), acertijo.getPoseedor());
     }
 

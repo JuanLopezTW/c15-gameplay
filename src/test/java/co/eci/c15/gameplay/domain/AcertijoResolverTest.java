@@ -72,9 +72,10 @@ class AcertijoResolverTest {
 
     @Test
     void soloQuienLoTieneAbiertoPuedeEnviarLaSolucion() {
-        assertThrows(AcertijoNoAbiertoException.class, () -> acertijo.intentarResolver("ana", List.of("16"), ES_16));
+        List<String> respuesta = List.of("16");
+        assertThrows(AcertijoNoAbiertoException.class, () -> acertijo.intentarResolver("ana", respuesta, ES_16));
         abrirPara("ana");
-        assertThrows(AcertijoBloqueadoException.class, () -> acertijo.intentarResolver("beto", List.of("16"), ES_16));
+        assertThrows(AcertijoBloqueadoException.class, () -> acertijo.intentarResolver("beto", respuesta, ES_16));
         assertFalse(acertijo.isResuelto());
     }
 
@@ -82,7 +83,8 @@ class AcertijoResolverTest {
     void yaResueltoNoSePuedeVolverAResolver() {
         abrirPara("ana");
         acertijo.intentarResolver("ana", List.of("16"), ES_16);
-        assertThrows(AcertijoYaResueltoException.class, () -> acertijo.intentarResolver("ana", List.of("16"), ES_16));
+        List<String> respuesta = List.of("16");
+        assertThrows(AcertijoYaResueltoException.class, () -> acertijo.intentarResolver("ana", respuesta, ES_16));
     }
 
     @Test

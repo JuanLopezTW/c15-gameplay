@@ -33,7 +33,7 @@ public class AcertijoSolucionController {
 
     /** Envia la solucion; sin "respuesta" se valida lo ingresado con clicks. Un intento incorrecto responde 200. */
     @PostMapping
-    public ResponseEntity<?> enviar(@PathVariable("matchId") String matchId,
+    public ResponseEntity<Object> enviar(@PathVariable("matchId") String matchId,
                                     @PathVariable("componenteMapaId") String componenteMapaId,
                                     @RequestBody SolucionRequest body, Principal yo) {
         try {
@@ -47,7 +47,7 @@ public class AcertijoSolucionController {
         }
     }
 
-    private static ResponseEntity<?> error(HttpStatus status, String mensaje) {
+    private static ResponseEntity<Object> error(HttpStatus status, String mensaje) {
         return ResponseEntity.status(status).body(Map.of("error", mensaje));
     }
 }

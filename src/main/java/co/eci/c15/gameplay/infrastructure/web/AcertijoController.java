@@ -27,7 +27,7 @@ public class AcertijoController {
 
     /** Abre el acertijo (Enter junto al punto brillante) y lo bloquea para el resto del equipo. */
     @PostMapping
-    public ResponseEntity<?> abrir(@PathVariable("matchId") String matchId,
+    public ResponseEntity<Object> abrir(@PathVariable("matchId") String matchId,
                                    @PathVariable("componenteMapaId") String componenteMapaId, Principal yo) {
         try {
             return ResponseEntity.ok(useCase.ejecutar(matchId, componenteMapaId, yo.getName()));
@@ -42,7 +42,7 @@ public class AcertijoController {
 
     /** Cierra el acertijo y libera el bloqueo. */
     @DeleteMapping
-    public ResponseEntity<?> cerrar(@PathVariable("matchId") String matchId,
+    public ResponseEntity<Object> cerrar(@PathVariable("matchId") String matchId,
                                     @PathVariable("componenteMapaId") String componenteMapaId, Principal yo) {
         try {
             useCase.cerrar(matchId, componenteMapaId, yo.getName());

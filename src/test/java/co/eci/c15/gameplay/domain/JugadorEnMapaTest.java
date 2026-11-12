@@ -38,15 +38,18 @@ class JugadorEnMapaTest {
     @Test
     void rechazaDestinoFueraDelMapa() {
         JugadorEnMapa jugador = jugador();
-        assertThrows(MovimientoInvalidoException.class, () -> jugador.mover(mapa, new Posicion(5, 5)));
-        assertThrows(MovimientoInvalidoException.class, () -> jugador.mover(mapa, new Posicion(-1, 0)));
+        Posicion lejana = new Posicion(5, 5);
+        Posicion fueraDelMapa = new Posicion(-1, 0);
+        assertThrows(MovimientoInvalidoException.class, () -> jugador.mover(mapa, lejana));
+        assertThrows(MovimientoInvalidoException.class, () -> jugador.mover(mapa, fueraDelMapa));
         assertEquals(new Posicion(0, 0), jugador.getPosicion());
     }
 
     @Test
     void rechazaDestinoSobreUnComponente() {
         JugadorEnMapa jugador = jugador();
-        assertThrows(MovimientoInvalidoException.class, () -> jugador.mover(mapa, new Posicion(1, 0)));
+        Posicion vecina = new Posicion(1, 0);
+        assertThrows(MovimientoInvalidoException.class, () -> jugador.mover(mapa, vecina));
         assertEquals(new Posicion(0, 0), jugador.getPosicion());
     }
 
@@ -56,6 +59,7 @@ class JugadorEnMapaTest {
                 new ComponenteMapa("o1", TipoComponente.OBSTACULO, new Posicion(1, 2)),
                 new ComponenteMapa("o2", TipoComponente.OBSTACULO, new Posicion(2, 1))));
         JugadorEnMapa jugador = jugador();
-        assertThrows(MovimientoInvalidoException.class, () -> jugador.mover(cerrado, new Posicion(2, 2)));
+        Posicion encerrada = new Posicion(2, 2);
+        assertThrows(MovimientoInvalidoException.class, () -> jugador.mover(cerrado, encerrada));
     }
 }

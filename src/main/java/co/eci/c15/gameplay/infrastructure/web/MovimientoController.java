@@ -30,7 +30,7 @@ public class MovimientoController {
     }
 
     @PostMapping("/movimiento")
-    public ResponseEntity<?> mover(@PathVariable("matchId") String matchId,
+    public ResponseEntity<Object> mover(@PathVariable("matchId") String matchId,
                                    @PathVariable("userId") String userId,
                                    @RequestBody MoverRequest body, Principal yo) {
         if (!userId.equals(yo.getName())) {

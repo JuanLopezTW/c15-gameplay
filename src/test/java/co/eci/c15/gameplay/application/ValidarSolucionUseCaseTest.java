@@ -132,16 +132,16 @@ class ValidarSolucionUseCaseTest {
         abrir.ejecutar(MATCH, "acertijo-1", "ana");
         validar.ejecutar(MATCH, "acertijo-1", "ana", List.of("rojo", "azul"));
 
-        assertThrows(AcertijoYaResueltoException.class,
-                () -> validar.ejecutar(MATCH, "acertijo-1", "ana", List.of("rojo", "azul")));
+        List<String> respuestaCorrecta = List.of("rojo", "azul");
+        assertThrows(AcertijoYaResueltoException.class, () -> validar.ejecutar(MATCH, "acertijo-1", "ana", respuestaCorrecta));
         assertEquals(1, eventos.size());
     }
 
     @Test
     void sinAbrirElAcertijoNoSePuedeEnviarSolucion() {
         jugador("e1", "ana");
-        assertThrows(AcertijoNoAbiertoException.class,
-                () -> validar.ejecutar(MATCH, "acertijo-1", "ana", List.of("rojo", "azul")));
+        List<String> respuestaCorrecta = List.of("rojo", "azul");
+        assertThrows(AcertijoNoAbiertoException.class, () -> validar.ejecutar(MATCH, "acertijo-1", "ana", respuestaCorrecta));
         assertTrue(eventos.isEmpty());
     }
 
@@ -151,8 +151,8 @@ class ValidarSolucionUseCaseTest {
         jugador("e1", "beto");
         abrir.ejecutar(MATCH, "acertijo-1", "ana");
 
-        assertThrows(AcertijoBloqueadoException.class,
-                () -> validar.ejecutar(MATCH, "acertijo-1", "beto", List.of("rojo", "azul")));
+        List<String> respuestaCorrecta = List.of("rojo", "azul");
+        assertThrows(AcertijoBloqueadoException.class, () -> validar.ejecutar(MATCH, "acertijo-1", "beto", respuestaCorrecta));
         assertFalse(estados.obtener(MATCH, "e1", "acertijo-1").isResuelto());
     }
 

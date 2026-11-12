@@ -92,8 +92,7 @@ public final class MapaIsometrico {
             Posicion actual = cola.poll();
             for (int[] d : VECINOS) {
                 Posicion vecino = new Posicion(actual.x() + d[0], actual.y() + d[1]);
-                if (esTransitable(vecino) && !previo.containsKey(vecino)) {
-                    previo.put(vecino, actual);
+                if (esTransitable(vecino) && previo.putIfAbsent(vecino, actual) == null) {
                     cola.add(vecino);
                 }
             }

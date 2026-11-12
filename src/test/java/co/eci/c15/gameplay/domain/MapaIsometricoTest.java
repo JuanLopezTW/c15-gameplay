@@ -68,18 +68,21 @@ class MapaIsometricoTest {
     @Test
     void rechazaComponentesInvalidos() {
         Posicion spawn = new Posicion(0, 0);
-        assertThrows(IllegalArgumentException.class, () -> new MapaIsometrico("m1", 4, 4, spawn,
-                List.of(new ComponenteMapa("a", TipoComponente.LLAVE, new Posicion(5, 5)))));
-        assertThrows(IllegalArgumentException.class, () -> new MapaIsometrico("m1", 4, 4, spawn,
-                List.of(new ComponenteMapa("a", TipoComponente.LLAVE, spawn))));
-        assertThrows(IllegalArgumentException.class, () -> new MapaIsometrico("m1", 4, 4, spawn,
-                List.of(new ComponenteMapa("a", TipoComponente.LLAVE, new Posicion(1, 1)),
-                        new ComponenteMapa("b", TipoComponente.LLAVE, new Posicion(1, 1)))));
-        assertThrows(IllegalArgumentException.class, () -> new MapaIsometrico("m1", 4, 4, spawn,
-                List.of(new ComponenteMapa("a", TipoComponente.LLAVE, new Posicion(1, 1)),
-                        new ComponenteMapa("a", TipoComponente.LLAVE, new Posicion(2, 2)))));
-        assertThrows(IllegalArgumentException.class, () -> new MapaIsometrico(" ", 4, 4, spawn, List.of()));
-        assertThrows(IllegalArgumentException.class, () -> new MapaIsometrico("m1", 0, 4, spawn, List.of()));
-        assertThrows(IllegalArgumentException.class, () -> new MapaIsometrico("m1", 4, 4, new Posicion(9, 9), List.of()));
+        List<ComponenteMapa> fueraDelMapa = List.of(new ComponenteMapa("a", TipoComponente.LLAVE, new Posicion(5, 5)));
+        List<ComponenteMapa> enElSpawn = List.of(new ComponenteMapa("a", TipoComponente.LLAVE, spawn));
+        List<ComponenteMapa> mismaCelda = List.of(new ComponenteMapa("a", TipoComponente.LLAVE, new Posicion(1, 1)),
+                new ComponenteMapa("b", TipoComponente.LLAVE, new Posicion(1, 1)));
+        List<ComponenteMapa> idRepetido = List.of(new ComponenteMapa("a", TipoComponente.LLAVE, new Posicion(1, 1)),
+                new ComponenteMapa("a", TipoComponente.LLAVE, new Posicion(2, 2)));
+        List<ComponenteMapa> ninguno = List.of();
+        Posicion spawnFuera = new Posicion(9, 9);
+
+        assertThrows(IllegalArgumentException.class, () -> new MapaIsometrico("m1", 4, 4, spawn, fueraDelMapa));
+        assertThrows(IllegalArgumentException.class, () -> new MapaIsometrico("m1", 4, 4, spawn, enElSpawn));
+        assertThrows(IllegalArgumentException.class, () -> new MapaIsometrico("m1", 4, 4, spawn, mismaCelda));
+        assertThrows(IllegalArgumentException.class, () -> new MapaIsometrico("m1", 4, 4, spawn, idRepetido));
+        assertThrows(IllegalArgumentException.class, () -> new MapaIsometrico(" ", 4, 4, spawn, ninguno));
+        assertThrows(IllegalArgumentException.class, () -> new MapaIsometrico("m1", 0, 4, spawn, ninguno));
+        assertThrows(IllegalArgumentException.class, () -> new MapaIsometrico("m1", 4, 4, spawnFuera, ninguno));
     }
 }

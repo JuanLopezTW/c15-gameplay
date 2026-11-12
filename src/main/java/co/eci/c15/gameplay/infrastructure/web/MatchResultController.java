@@ -22,9 +22,9 @@ public class MatchResultController {
     }
 
     @GetMapping
-    public ResponseEntity<?> result(@PathVariable("matchId") String matchId) {
+    public ResponseEntity<Object> result(@PathVariable("matchId") String matchId) {
         return results.find(matchId)
-                .<ResponseEntity<?>>map(ResponseEntity::ok)
+                .<ResponseEntity<Object>>map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND)
                         .body(Map.of("error", "La partida " + matchId + " no ha terminado")));
     }

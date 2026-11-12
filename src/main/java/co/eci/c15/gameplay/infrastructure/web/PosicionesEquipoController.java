@@ -30,7 +30,7 @@ public class PosicionesEquipoController {
 
     /** Posiciones de los companeros de equipo; solo las puede ver un miembro del mismo equipo. */
     @GetMapping("/equipos/{equipoId}/posiciones")
-    public ResponseEntity<?> posiciones(@PathVariable("matchId") String matchId,
+    public ResponseEntity<Object> posiciones(@PathVariable("matchId") String matchId,
                                         @PathVariable("equipoId") String equipoId, Principal yo) {
         try {
             return ResponseEntity.ok(consultar.ejecutar(matchId, equipoId, yo.getName()));
