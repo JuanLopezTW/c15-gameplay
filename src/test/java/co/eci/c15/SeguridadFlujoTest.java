@@ -6,12 +6,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.oauth2.jwt.BadJwtException;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
+
+import java.time.Instant;
+import java.util.List;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.mockito.Mockito.when;
@@ -39,6 +43,8 @@ class SeguridadFlujoTest {
     @BeforeEach
     void setUp() {
         when(tokens.decode("token-falso")).thenThrow(new BadJwtException("firma invalida"));
+        when(tokens.decode("token-jugador")).thenReturn(token("auth0|ana", List.of()));
+        when(tokens.decode("token-admin")).thenReturn(token("auth0|admin", List.of("admin")));
         mvc = MockMvcBuilders.webAppContextSetup(contexto).apply(springSecurity()).build();
     }
 
@@ -55,6 +61,28 @@ class SeguridadFlujoTest {
                 .andExpect(status().isForbidden());
         mvc.perform(get("/api/partidas/m1/mapa").header("Authorization", "Bearer token-falso"))
                 .andExpect(status().isUnauthorized());
+    }
+
+    private static Jwt token(String sub, List<String> roles) {
+        return Jwt.withTokenValue("t").header("alg", "RS256").subject(sub)
+                .claim("https://api.escaperoomc15/roles", roles)
+                .issuedAt(Instant.EPOCH).expiresAt(Instant.parse("2999-01-01T00:00:00Z")).build();
+    }
+
+    @Test
+    void lasFuncionesDeAdministracionPidenElRolAdmin() throws Exception {
+        mvc.perform(post("/dev/partidas/m-admin/inicio").param("segundos", "60").header("Authorization", "Bearer token-jugador"))
+                .andExpect(status().isForbidden());
+        mvc.perform(post("/dev/partidas/m-admin/reto/inicio").header("Authorization", "Bearer token-jugador"))
+                .andExpect(status().isForbidden());
+        mvc.perform(get("/api/admin/cualquier-cosa").header("Authorization", "Bearer token-jugador"))
+                .andExpect(status().isForbidden());
+
+        mvc.perform(post("/dev/partidas/m-admin/inicio").param("segundos", "60").header("Authorization", "Bearer token-admin"))
+                .andExpect(status().isOk());
+        // El jugador sigue usando el juego normal con el mismo token
+        mvc.perform(get("/api/partidas/m-admin/cronometro").header("Authorization", "Bearer token-jugador"))
+                .andExpect(status().isOk());
     }
 
     @Test

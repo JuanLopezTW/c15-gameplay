@@ -44,7 +44,7 @@ class EventosEntreServiciosAsincronosTest {
     void conTransaccionSoloSeEntregaDespuesDelCommit() {
         TransactionSynchronizationManager.initSynchronization();
         publicador.publicar("inicio");
-        // Antes del commit no sale nada (durante todo el rato, no solo al final)
+        // Antes del commit no sale nada (en el rato completo, no solo al final)
         await().during(Duration.ofMillis(200)).atMost(Duration.ofSeconds(2)).until(entregados::isEmpty);
 
         TransactionSynchronizationManager.getSynchronizations().forEach(TransactionSynchronization::afterCommit);
