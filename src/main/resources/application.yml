@@ -51,6 +51,10 @@ c15:
     redis: ${ESTADO_REDIS:false}
     # Todo en Redis caduca: lo de una partida dura lo que la partida mas este margen (regla del profe: minutos, nunca mas de 1 h)
     margen: 10m
+  partida:
+    # Si se cierra la conexion de un jugador en el mapa, tiene este tiempo para volver (recargar o un corte de
+    # red) antes de salir de la partida. Mayor que la renovacion del broker (30 s): nadie sale por tener dos pestanas.
+    gracia-desconexion: ${GRACIA_DESCONEXION:40s}
   reto:
     # 5 s del aviso del front (ModalDesafio) + 20 s de juego: el reto corre desde que sale el aviso
     duracion: ${RETO_DURACION:25s}

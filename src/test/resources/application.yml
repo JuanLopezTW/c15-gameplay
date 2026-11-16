@@ -18,6 +18,9 @@ spring:
 c15:
   estado:
     margen: 10m
+  partida:
+    # La gracia para volver al mapa (40 s en produccion): corta para que las pruebas no esperen
+    gracia-desconexion: 300ms
   eventos:
     # Sin Kafka: las pruebas publican los eventos directo (ApplicationEventPublisher); *KafkaTest lo enciende
     kafka: false
