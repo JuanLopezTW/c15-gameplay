@@ -37,7 +37,7 @@ public class GeneradorMapa {
         if (matchId == null || matchId.isBlank()) throw new IllegalArgumentException("El id de la partida no puede estar vacio");
         for (int intento = 0; intento < MAX_INTENTOS; intento++) {
             MapaIsometrico mapa = construir(matchId, intento);
-            if (mapa.todosAccesibles()) return mapa;
+            if (mapa != null && mapa.todosAccesibles()) return mapa;
         }
         throw new MapaNoGeneradoException("No se pudo generar un mapa valido para la partida " + matchId);
     }
@@ -54,22 +54,48 @@ public class GeneradorMapa {
         Collections.shuffle(celdas, azar);
 
         List<ComponenteMapa> componentes = new ArrayList<>();
-        int siguiente = 0;
-        siguiente = agregar(componentes, celdas, siguiente, TipoComponente.ACERTIJO, "acertijo-", ACERTIJOS);
-        siguiente = agregar(componentes, celdas, siguiente, TipoComponente.LLAVE, "llave-", LLAVES);
-        siguiente = agregar(componentes, celdas, siguiente, TipoComponente.PUERTA, "puerta-", PUERTAS);
+        boolean cupo = agregar(componentes, celdas, TipoComponente.ACERTIJO, "acertijo-", ACERTIJOS)
+                && agregar(componentes, celdas, TipoComponente.LLAVE, "llave-", LLAVES)
+                && agregar(componentes, celdas, TipoComponente.PUERTA, "puerta-", PUERTAS);
         for (String objeto : objetosDePartida.apply(matchId)) {
-            componentes.add(new ComponenteMapa(objeto, TipoComponente.OBJETO, celdas.get(siguiente++)));
+            cupo = cupo && agregar(componentes, celdas, TipoComponente.OBJETO, objeto);
         }
-        agregar(componentes, celdas, siguiente, TipoComponente.OBSTACULO, "obstaculo-", OBSTACULOS);
-        return new MapaIsometrico(matchId, ANCHO, ALTO, SPAWN, componentes);
+        cupo = cupo && agregar(componentes, celdas, TipoComponente.OBSTACULO, "obstaculo-", OBSTACULOS);
+        return cupo ? new MapaIsometrico(matchId, ANCHO, ALTO, SPAWN, componentes) : null;
     }
 
-    private int agregar(List<ComponenteMapa> destino, List<Posicion> celdas, int desde,
-                        TipoComponente tipo, String prefijo, int cantidad) {
-        for (int i = 0; i < cantidad; i++) {
-            destino.add(new ComponenteMapa(prefijo + (i + 1), tipo, celdas.get(desde + i)));
+    private boolean agregar(List<ComponenteMapa> destino, List<Posicion> celdas,
+                            TipoComponente tipo, String prefijo, int cantidad) {
+        for (int i = 1; i <= cantidad; i++) {
+            if (!agregar(destino, celdas, tipo, prefijo + i)) return false;
         }
-        return desde + cantidad;
+        return true;
+    }
+
+    /** Pone el componente en la primera celda libre (en el orden barajado) que cumpla {@link #puedeIr}. */
+    private boolean agregar(List<ComponenteMapa> destino, List<Posicion> celdas, TipoComponente tipo, String id) {
+        for (int i = 0; i < celdas.size(); i++) {
+            Posicion p = celdas.get(i);
+            if (puedeIr(tipo, p, destino)) {
+                destino.add(new ComponenteMapa(id, tipo, p));
+                celdas.remove(i);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Lo que se usa con E (acertijo, llave, puerta, objeto) no puede quedar pegado a ningun otro componente,
+     * ni en diagonal: queda suelto, se ve en su casilla y se llega sin confundirlo con lo de al lado.
+     * Los obstaculos si pueden quedar juntos entre ellos.
+     */
+    static boolean puedeIr(TipoComponente tipo, Posicion p, List<ComponenteMapa> puestos) {
+        boolean interactivo = tipo != TipoComponente.OBSTACULO;
+        for (ComponenteMapa otro : puestos) {
+            boolean pegados = Math.abs(otro.posicion().x() - p.x()) <= 1 && Math.abs(otro.posicion().y() - p.y()) <= 1;
+            if (pegados && (interactivo || otro.tipo() != TipoComponente.OBSTACULO)) return false;
+        }
+        return true;
     }
 }
