@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
+import java.util.function.Function;
 
 /**
  * Genera el mapa de una partida. Es determinista: el mismo matchId produce siempre
@@ -20,6 +21,17 @@ public class GeneradorMapa {
     static final int MAX_INTENTOS = 50;
 
     private static final Posicion SPAWN = new Posicion(0, 0);
+
+    private final Function<String, List<String>> objetosDePartida;
+
+    public GeneradorMapa() {
+        this(matchId -> List.of());
+    }
+
+    /** @param objetosDePartida objetos que los acertijos de la partida necesitan en el mapa (componentes OBJETO) */
+    public GeneradorMapa(Function<String, List<String>> objetosDePartida) {
+        this.objetosDePartida = objetosDePartida;
+    }
 
     public MapaIsometrico generar(String matchId) {
         if (matchId == null || matchId.isBlank()) throw new IllegalArgumentException("El id de la partida no puede estar vacio");
@@ -46,6 +58,9 @@ public class GeneradorMapa {
         siguiente = agregar(componentes, celdas, siguiente, TipoComponente.ACERTIJO, "acertijo-", ACERTIJOS);
         siguiente = agregar(componentes, celdas, siguiente, TipoComponente.LLAVE, "llave-", LLAVES);
         siguiente = agregar(componentes, celdas, siguiente, TipoComponente.PUERTA, "puerta-", PUERTAS);
+        for (String objeto : objetosDePartida.apply(matchId)) {
+            componentes.add(new ComponenteMapa(objeto, TipoComponente.OBJETO, celdas.get(siguiente++)));
+        }
         agregar(componentes, celdas, siguiente, TipoComponente.OBSTACULO, "obstaculo-", OBSTACULOS);
         return new MapaIsometrico(matchId, ANCHO, ALTO, SPAWN, componentes);
     }

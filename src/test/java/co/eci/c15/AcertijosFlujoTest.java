@@ -19,6 +19,7 @@ import java.util.Map;
 import java.util.stream.Stream;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -59,6 +60,12 @@ class AcertijosFlujoTest {
                 .andExpect(jsonPath("$.elementos").isNotEmpty());
 
         abrir("beto").andExpect(status().isConflict());
+        // Beto puede mirarlo (sus pistas) sin abrirlo ni quitarle el bloqueo a Ana
+        mvc.perform(get("/api/partidas/{m}/acertijos/acertijo-1", MATCH).param("userId", "beto"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.tipo").value("pregunta"))
+                .andExpect(jsonPath("$.componenteMapaId").value("acertijo-1"));
+        abrir("beto").andExpect(status().isConflict());
         abrir("carla").andExpect(status().isOk());
         mover("ana", mapa.getSpawn()).andExpect(status().isBadRequest());
 
@@ -76,6 +83,8 @@ class AcertijosFlujoTest {
 
         mvc.perform(post("/api/partidas/{m}/acertijos/{c}/bloqueo", MATCH + "-404", "llave-1")
                         .contentType(MediaType.APPLICATION_JSON).content("{\"userId\":\"eva\"}"))
+                .andExpect(status().isNotFound());
+        mvc.perform(get("/api/partidas/{m}/acertijos/{c}", MATCH + "-404", "llave-1").param("userId", "eva"))
                 .andExpect(status().isNotFound());
         mvc.perform(post("/api/partidas/{m}/acertijos/{c}/bloqueo", MATCH + "-404", "acertijo-1")
                         .contentType(MediaType.APPLICATION_JSON).content("{\"userId\":\"intruso\"}"))

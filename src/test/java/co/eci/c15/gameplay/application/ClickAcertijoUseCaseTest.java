@@ -1,15 +1,11 @@
 package co.eci.c15.gameplay.application;
 
-import co.eci.c15.gameplay.domain.Acertijo;
 import co.eci.c15.gameplay.domain.AcertijoBloqueadoException;
 import co.eci.c15.gameplay.domain.AcertijoEnPartida;
 import co.eci.c15.gameplay.domain.AcertijoNoAbiertoException;
-import co.eci.c15.gameplay.domain.AcertijoRepository;
 import co.eci.c15.gameplay.domain.AcertijoYaResueltoException;
 import co.eci.c15.gameplay.domain.ComponenteMapa;
 import co.eci.c15.gameplay.domain.ComponenteSinAcertijoException;
-import co.eci.c15.gameplay.domain.ElementoInteractivo;
-import co.eci.c15.gameplay.domain.ElementoInteractivoRepository;
 import co.eci.c15.gameplay.domain.ElementoNoValidoException;
 import co.eci.c15.gameplay.domain.GeneradorMapa;
 import co.eci.c15.gameplay.domain.JugadorEnMapa;
@@ -46,10 +42,10 @@ class ClickAcertijoUseCaseTest {
         ObtenerMapaUseCase obtenerMapa = new ObtenerMapaUseCase(mapas, new GeneradorMapa());
         jugadores = new JugadorEnMapaRepositoryEnMemoria();
         estados = new AcertijosEnPartidaEnMemoria();
-        AcertijoRepository catalogo = new CatalogoFijo();
-        ElementoInteractivoRepository elementos = new ElementosFijos();
-        abrir = new AbrirAcertijoUseCase(jugadores, obtenerMapa, catalogo, elementos, estados, CandadoEquipo.ninguno());
-        clicks = new ClickAcertijoUseCase(jugadores, catalogo, elementos, estados, CandadoEquipo.ninguno());
+        CatalogoDePrueba catalogo = new CatalogoDePrueba().con("acertijo-1",
+                CatalogoDePrueba.simple("cat-1", "Ordena los colores", "lista", "lista-ordenable", List.of("rojo")));
+        abrir = new AbrirAcertijoUseCase(jugadores, obtenerMapa, catalogo, CatalogoDePrueba.vista(), estados, CandadoEquipo.ninguno());
+        clicks = new ClickAcertijoUseCase(jugadores, catalogo, estados, CandadoEquipo.ninguno());
     }
 
     private JugadorEnMapa jugador(String equipo, String userId) {
@@ -169,30 +165,5 @@ class ClickAcertijoUseCaseTest {
         assertThrows(IllegalArgumentException.class, () -> clicks.click(MATCH, "acertijo-1", "ana", "lista", muyLargo));
         AcertijoEnPartida estado = estados.obtener(MATCH, "e1", "acertijo-1");
         assertTrue(estado.getEntrada().isEmpty());
-    }
-
-    private static class CatalogoFijo implements AcertijoRepository {
-        private final Acertijo acertijo = new Acertijo("cat-1", "acertijo-1", "Ordena los colores");
-
-        @Override
-        public Optional<Acertijo> findByComponenteMapaId(String componenteMapaId) {
-            return acertijo.getComponenteMapaId().equals(componenteMapaId) ? Optional.of(acertijo) : Optional.empty();
-        }
-
-        @Override
-        public Acertijo save(Acertijo a) { return a; }
-    }
-
-    private static class ElementosFijos implements ElementoInteractivoRepository {
-        private final List<ElementoInteractivo> elementos =
-                List.of(new ElementoInteractivo("lista", "cat-1", "lista-ordenable", "Colores"));
-
-        @Override
-        public List<ElementoInteractivo> findByAcertijoId(String acertijoId) {
-            return elementos.stream().filter(e -> e.getAcertijoId().equals(acertijoId)).toList();
-        }
-
-        @Override
-        public ElementoInteractivo save(ElementoInteractivo e) { return e; }
     }
 }

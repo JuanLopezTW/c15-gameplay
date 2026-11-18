@@ -136,7 +136,7 @@ class AcertijoSolucionFlujoTest {
     private ResultActions click(String userId, String valor) throws Exception {
         return mvc.perform(post("/api/partidas/{m}/acertijos/acertijo-3/clicks", MATCH)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content("{\"userId\":\"" + userId + "\",\"elementoId\":\"placeholder-acertijo-3-elemento-1\",\"valor\":\"" + valor + "\"}"));
+                .content("{\"userId\":\"" + userId + "\",\"elementoId\":\"pregunta-cesar-elemento-1\",\"valor\":\"" + valor + "\"}"));
     }
 
     private ResultActions abrir(String userId) throws Exception {

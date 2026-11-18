@@ -45,7 +45,8 @@ class InventarioUseCasesTest {
         mapas.saveIfAbsent(new MapaIsometrico(MATCH, 6, 6, new Posicion(0, 0), List.of(
                 new ComponenteMapa("llave-1", TipoComponente.LLAVE, new Posicion(2, 2)),
                 new ComponenteMapa("llave-2", TipoComponente.LLAVE, new Posicion(4, 4)),
-                new ComponenteMapa("acertijo-1", TipoComponente.ACERTIJO, new Posicion(1, 4)))));
+                new ComponenteMapa("acertijo-1", TipoComponente.ACERTIJO, new Posicion(1, 4)),
+                new ComponenteMapa("lampara-uv", TipoComponente.OBJETO, new Posicion(5, 1)))));
         ObtenerMapaUseCase obtenerMapa = new ObtenerMapaUseCase(mapas, new GeneradorMapa());
         jugadores = new JugadorEnMapaRepositoryEnMemoria();
         avisos = Collections.synchronizedList(new ArrayList<>());
@@ -56,6 +57,16 @@ class InventarioUseCasesTest {
 
     private JugadorEnMapa jugador(String equipo, String userId, Posicion posicion) {
         return jugadores.saveIfAbsent(new JugadorEnMapa(MATCH, equipo, userId, posicion));
+    }
+
+    @Test
+    void laLamparaUvSeRecogeComoLasLlavesYTieneSuNombre() {
+        jugador("e1", "ana", new Posicion(5, 2));
+
+        InventarioDto dto = recolectar.ejecutar(MATCH, "ana", "lampara-uv");
+
+        assertEquals(List.of(new InventarioDto.ObjetoDto("lampara-uv", "Lámpara UV", "ana")), dto.objetos());
+        assertEquals("Llave 2", RecolectarObjetoUseCase.nombreDe("llave-2"));
     }
 
     @Test

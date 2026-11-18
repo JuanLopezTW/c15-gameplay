@@ -16,6 +16,9 @@ spring:
     show-sql: false
 
 c15:
+  acertijos:
+    # Las pruebas usan siempre las 3 preguntas de siempre (conocen sus respuestas); en produccion se sortean
+    sorteo: false
   estado:
     margen: 10m
   partida:

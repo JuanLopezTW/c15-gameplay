@@ -4,14 +4,12 @@ import co.eci.c15.common.logging.EventoNegocio;
 import co.eci.c15.gameplay.domain.events.AcertijoResueltoEvent;
 import co.eci.c15.gameplay.domain.AcertijoEnPartida;
 import co.eci.c15.gameplay.domain.AcertijoEnPartidaRepository;
-import co.eci.c15.gameplay.domain.AcertijoRepository;
-import co.eci.c15.gameplay.domain.ComparadorRespuestas;
+import co.eci.c15.gameplay.domain.CatalogoAcertijos;
 import co.eci.c15.gameplay.domain.ComponenteSinAcertijoException;
+import co.eci.c15.gameplay.domain.DefinicionAcertijo;
 import co.eci.c15.gameplay.domain.JugadorEnMapa;
 import co.eci.c15.gameplay.domain.JugadorEnMapaRepository;
 import co.eci.c15.gameplay.domain.JugadorNoRegistradoException;
-import co.eci.c15.gameplay.domain.SolucionAcertijoRepository;
-import co.eci.c15.gameplay.domain.SolucionNoDisponibleException;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.slf4j.Logger;
@@ -34,18 +32,16 @@ public class ValidarSolucionUseCase {
     static final int MAX_LONGITUD_PASO = 50;
 
     private final JugadorEnMapaRepository jugadores;
-    private final AcertijoRepository acertijos;
-    private final SolucionAcertijoRepository soluciones;
+    private final CatalogoAcertijos catalogo;
     private final AcertijoEnPartidaRepository estados;
     private final ApplicationEventPublisher events;
     private final CandadoEquipo candado;
 
-    public ValidarSolucionUseCase(JugadorEnMapaRepository jugadores, AcertijoRepository acertijos,
-                                  SolucionAcertijoRepository soluciones, AcertijoEnPartidaRepository estados,
-                                  ApplicationEventPublisher events, CandadoEquipo candado) {
+    public ValidarSolucionUseCase(JugadorEnMapaRepository jugadores, CatalogoAcertijos catalogo,
+                                  AcertijoEnPartidaRepository estados, ApplicationEventPublisher events,
+                                  CandadoEquipo candado) {
         this.jugadores = jugadores;
-        this.acertijos = acertijos;
-        this.soluciones = soluciones;
+        this.catalogo = catalogo;
         this.estados = estados;
         this.events = events;
         this.candado = candado;
@@ -56,16 +52,14 @@ public class ValidarSolucionUseCase {
         validar(respuesta);
         JugadorEnMapa jugador = jugadores.find(matchId, userId)
                 .orElseThrow(() -> new JugadorNoRegistradoException(matchId, userId));
-        acertijos.findByComponenteMapaId(componenteMapaId)
+        DefinicionAcertijo acertijo = catalogo.de(matchId, componenteMapaId)
                 .orElseThrow(() -> new ComponenteSinAcertijoException(componenteMapaId));
-        List<String> solucion = soluciones.findByComponenteMapaId(componenteMapaId)
-                .orElseThrow(() -> new SolucionNoDisponibleException(componenteMapaId));
         String equipoId = jugador.getEquipoId();
 
         AcertijoEnPartida.Resultado resultado = candado.ejecutar(matchId, equipoId, () -> {
             AcertijoEnPartida estado = estados.obtener(matchId, equipoId, componenteMapaId);
             AcertijoEnPartida.Resultado r = estado.intentarResolver(userId, respuesta,
-                    candidata -> ComparadorRespuestas.coincide(candidata, solucion));
+                    acertijo::acepta);
             estados.guardar(estado);
             if (r == AcertijoEnPartida.Resultado.CORRECTA) {
                 jugadores.find(matchId, userId).ifPresent(quien -> {

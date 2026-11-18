@@ -1,13 +1,12 @@
 package co.eci.c15.gameplay.application;
 
 import co.eci.c15.common.logging.EventoNegocio;
-import co.eci.c15.gameplay.domain.Acertijo;
 import co.eci.c15.gameplay.domain.AcertijoEnPartida;
 import co.eci.c15.gameplay.domain.AcertijoEnPartidaRepository;
-import co.eci.c15.gameplay.domain.AcertijoRepository;
+import co.eci.c15.gameplay.domain.CatalogoAcertijos;
 import co.eci.c15.gameplay.domain.ComponenteMapa;
 import co.eci.c15.gameplay.domain.ComponenteSinAcertijoException;
-import co.eci.c15.gameplay.domain.ElementoInteractivoRepository;
+import co.eci.c15.gameplay.domain.DefinicionAcertijo;
 import co.eci.c15.gameplay.domain.JugadorEnMapa;
 import co.eci.c15.gameplay.domain.JugadorEnMapaRepository;
 import co.eci.c15.gameplay.domain.JugadorNoRegistradoException;
@@ -37,26 +36,26 @@ public class AbrirAcertijoUseCase {
 
     private final JugadorEnMapaRepository jugadores;
     private final ObtenerMapaUseCase obtenerMapa;
-    private final AcertijoRepository acertijos;
-    private final ElementoInteractivoRepository elementos;
+    private final CatalogoAcertijos catalogo;
+    private final VistaAcertijo vista;
     private final AcertijoEnPartidaRepository estados;
     private final CandadoEquipo candado;
     private final Clock clock;
 
     @Autowired
     public AbrirAcertijoUseCase(JugadorEnMapaRepository jugadores, ObtenerMapaUseCase obtenerMapa,
-                                AcertijoRepository acertijos, ElementoInteractivoRepository elementos,
+                                CatalogoAcertijos catalogo, VistaAcertijo vista,
                                 AcertijoEnPartidaRepository estados, CandadoEquipo candado) {
-        this(jugadores, obtenerMapa, acertijos, elementos, estados, candado, Clock.systemUTC());
+        this(jugadores, obtenerMapa, catalogo, vista, estados, candado, Clock.systemUTC());
     }
 
     AbrirAcertijoUseCase(JugadorEnMapaRepository jugadores, ObtenerMapaUseCase obtenerMapa,
-                         AcertijoRepository acertijos, ElementoInteractivoRepository elementos,
+                         CatalogoAcertijos catalogo, VistaAcertijo vista,
                          AcertijoEnPartidaRepository estados, CandadoEquipo candado, Clock clock) {
         this.jugadores = jugadores;
         this.obtenerMapa = obtenerMapa;
-        this.acertijos = acertijos;
-        this.elementos = elementos;
+        this.catalogo = catalogo;
+        this.vista = vista;
         this.estados = estados;
         this.candado = candado;
         this.clock = clock;
@@ -68,7 +67,7 @@ public class AbrirAcertijoUseCase {
                 .filter(c -> c.id().equals(componenteMapaId) && c.tipo() == TipoComponente.ACERTIJO)
                 .findFirst()
                 .orElseThrow(() -> new ComponenteSinAcertijoException(componenteMapaId));
-        Acertijo acertijo = acertijos.findByComponenteMapaId(componenteMapaId)
+        DefinicionAcertijo acertijo = catalogo.de(matchId, componenteMapaId)
                 .orElseThrow(() -> new ComponenteSinAcertijoException(componenteMapaId));
         return candado.ejecutar(matchId, equipoId, () -> {
             JugadorEnMapa jugador = jugadorDe(matchId, userId);
@@ -90,8 +89,20 @@ public class AbrirAcertijoUseCase {
                 EventoNegocio.de(log, "acertijo.abierto").con("matchId", matchId).con("equipoId", equipoId)
                         .con("acertijo", componenteMapaId).con("userId", userId).info();
             }
-            return VisualizarAcertijoDto.from(acertijo, estado, elementos.findByAcertijoId(acertijo.getId()));
+            return vista.para(matchId, equipoId, userId, componenteMapaId, acertijo, estado);
         });
+    }
+
+    /**
+     * Mira el acertijo sin abrirlo ni bloquearlo: sirve para que un companero vea SUS pistas mientras
+     * el otro lo tiene abierto (los acertijos cooperativos reparten la informacion entre los dos).
+     */
+    public VisualizarAcertijoDto ver(String matchId, String componenteMapaId, String userId) {
+        String equipoId = jugadorDe(matchId, userId).getEquipoId();
+        DefinicionAcertijo acertijo = catalogo.de(matchId, componenteMapaId)
+                .orElseThrow(() -> new ComponenteSinAcertijoException(componenteMapaId));
+        AcertijoEnPartida estado = estados.obtener(matchId, equipoId, componenteMapaId);
+        return vista.para(matchId, equipoId, userId, componenteMapaId, acertijo, estado);
     }
 
     /** Cierra el acertijo: libera el bloqueo (si era suyo) y el jugador puede volver a moverse. */

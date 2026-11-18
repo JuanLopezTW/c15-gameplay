@@ -30,7 +30,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class AcertijoClicksFlujoTest {
 
     private static final String MATCH = "match-clicks-flujo";
-    private static final String ELEMENTO = "placeholder-acertijo-2-elemento-1";
+    private static final String ELEMENTO = "pregunta-arcoiris-elemento-1";
 
     @Autowired
     private MockMvc mvc;

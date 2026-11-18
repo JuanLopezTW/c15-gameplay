@@ -1,11 +1,10 @@
 package co.eci.c15.gameplay.application;
 
-import co.eci.c15.gameplay.domain.Acertijo;
 import co.eci.c15.gameplay.domain.AcertijoEnPartida;
 import co.eci.c15.gameplay.domain.AcertijoEnPartidaRepository;
-import co.eci.c15.gameplay.domain.AcertijoRepository;
+import co.eci.c15.gameplay.domain.CatalogoAcertijos;
 import co.eci.c15.gameplay.domain.ComponenteSinAcertijoException;
-import co.eci.c15.gameplay.domain.ElementoInteractivoRepository;
+import co.eci.c15.gameplay.domain.DefinicionAcertijo;
 import co.eci.c15.gameplay.domain.ElementoNoValidoException;
 import co.eci.c15.gameplay.domain.JugadorEnMapa;
 import co.eci.c15.gameplay.domain.JugadorEnMapaRepository;
@@ -23,17 +22,14 @@ public class ClickAcertijoUseCase {
     static final int MAX_LONGITUD_VALOR = 50;
 
     private final JugadorEnMapaRepository jugadores;
-    private final AcertijoRepository acertijos;
-    private final ElementoInteractivoRepository elementos;
+    private final CatalogoAcertijos catalogo;
     private final AcertijoEnPartidaRepository estados;
     private final CandadoEquipo candado;
 
-    public ClickAcertijoUseCase(JugadorEnMapaRepository jugadores, AcertijoRepository acertijos,
-                                ElementoInteractivoRepository elementos, AcertijoEnPartidaRepository estados,
-                                CandadoEquipo candado) {
+    public ClickAcertijoUseCase(JugadorEnMapaRepository jugadores, CatalogoAcertijos catalogo,
+                                AcertijoEnPartidaRepository estados, CandadoEquipo candado) {
         this.jugadores = jugadores;
-        this.acertijos = acertijos;
-        this.elementos = elementos;
+        this.catalogo = catalogo;
         this.estados = estados;
         this.candado = candado;
     }
@@ -44,9 +40,9 @@ public class ClickAcertijoUseCase {
     public EntradaAcertijoDto click(String matchId, String componenteMapaId, String userId,
                                     String elementoId, String valor) {
         JugadorEnMapa jugador = jugadorDe(matchId, userId);
-        Acertijo acertijo = acertijos.findByComponenteMapaId(componenteMapaId)
+        DefinicionAcertijo acertijo = catalogo.de(matchId, componenteMapaId)
                 .orElseThrow(() -> new ComponenteSinAcertijoException(componenteMapaId));
-        if (elementoId == null || elementos.findByAcertijoId(acertijo.getId()).stream()
+        if (elementoId == null || acertijo.elementos().stream()
                 .noneMatch(e -> e.getId().equals(elementoId))) {
             throw new ElementoNoValidoException(componenteMapaId, elementoId);
         }
@@ -76,7 +72,7 @@ public class ClickAcertijoUseCase {
     /** Lo que el equipo del jugador lleva ingresado en el acertijo. */
     public EntradaAcertijoDto consultar(String matchId, String componenteMapaId, String userId) {
         JugadorEnMapa jugador = jugadorDe(matchId, userId);
-        acertijos.findByComponenteMapaId(componenteMapaId)
+        catalogo.de(matchId, componenteMapaId)
                 .orElseThrow(() -> new ComponenteSinAcertijoException(componenteMapaId));
         return EntradaAcertijoDto.from(estados.obtener(matchId, jugador.getEquipoId(), componenteMapaId));
     }

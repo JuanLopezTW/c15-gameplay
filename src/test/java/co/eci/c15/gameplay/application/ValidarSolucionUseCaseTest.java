@@ -1,22 +1,16 @@
 package co.eci.c15.gameplay.application;
 
 import co.eci.c15.gameplay.domain.events.AcertijoResueltoEvent;
-import co.eci.c15.gameplay.domain.Acertijo;
 import co.eci.c15.gameplay.domain.AcertijoBloqueadoException;
 import co.eci.c15.gameplay.domain.AcertijoNoAbiertoException;
-import co.eci.c15.gameplay.domain.AcertijoRepository;
 import co.eci.c15.gameplay.domain.AcertijoYaResueltoException;
 import co.eci.c15.gameplay.domain.ComponenteMapa;
 import co.eci.c15.gameplay.domain.ComponenteSinAcertijoException;
-import co.eci.c15.gameplay.domain.ElementoInteractivo;
-import co.eci.c15.gameplay.domain.ElementoInteractivoRepository;
 import co.eci.c15.gameplay.domain.GeneradorMapa;
 import co.eci.c15.gameplay.domain.JugadorEnMapa;
 import co.eci.c15.gameplay.domain.JugadorNoRegistradoException;
 import co.eci.c15.gameplay.domain.MapaIsometrico;
 import co.eci.c15.gameplay.domain.Posicion;
-import co.eci.c15.gameplay.domain.SolucionAcertijoRepository;
-import co.eci.c15.gameplay.domain.SolucionNoDisponibleException;
 import co.eci.c15.gameplay.domain.TipoComponente;
 import co.eci.c15.gameplay.infrastructure.persistence.AcertijosEnPartidaEnMemoria;
 import co.eci.c15.gameplay.infrastructure.persistence.JugadorEnMapaRepositoryEnMemoria;
@@ -52,11 +46,12 @@ class ValidarSolucionUseCaseTest {
         jugadores = new JugadorEnMapaRepositoryEnMemoria();
         estados = new AcertijosEnPartidaEnMemoria();
         eventos = new ArrayList<>();
-        AcertijoRepository catalogo = new CatalogoFijo();
-        ElementoInteractivoRepository elementos = new ElementosFijos();
-        abrir = new AbrirAcertijoUseCase(jugadores, obtenerMapa, catalogo, elementos, estados, CandadoEquipo.ninguno());
-        clicks = new ClickAcertijoUseCase(jugadores, catalogo, elementos, estados, CandadoEquipo.ninguno());
-        validar = new ValidarSolucionUseCase(jugadores, catalogo, new SolucionesFijas(), estados, eventos::add, CandadoEquipo.ninguno());
+        CatalogoDePrueba catalogo = new CatalogoDePrueba()
+                .con("acertijo-1", CatalogoDePrueba.simple("cat-1", "Enunciado", "e", "lista-ordenable", List.of("rojo", "azul")))
+                .con("acertijo-2", CatalogoDePrueba.simple("cat-2", "Enunciado", "e", "lista-ordenable", List.of("verde")));
+        abrir = new AbrirAcertijoUseCase(jugadores, obtenerMapa, catalogo, CatalogoDePrueba.vista(), estados, CandadoEquipo.ninguno());
+        clicks = new ClickAcertijoUseCase(jugadores, catalogo, estados, CandadoEquipo.ninguno());
+        validar = new ValidarSolucionUseCase(jugadores, catalogo, estados, eventos::add, CandadoEquipo.ninguno());
     }
 
     private JugadorEnMapa jugador(String equipo, String userId) {
@@ -163,7 +158,6 @@ class ValidarSolucionUseCaseTest {
 
         assertThrows(JugadorNoRegistradoException.class, () -> validar.ejecutar(MATCH, "acertijo-1", "intruso", null));
         assertThrows(ComponenteSinAcertijoException.class, () -> validar.ejecutar(MATCH, "acertijo-99", "ana", null));
-        assertThrows(SolucionNoDisponibleException.class, () -> validar.ejecutar(MATCH, "acertijo-2", "ana", null));
     }
 
     @Test
@@ -177,34 +171,5 @@ class ValidarSolucionUseCaseTest {
         assertThrows(IllegalArgumentException.class, () -> validar.ejecutar(MATCH, "acertijo-1", "ana", muchos));
         assertThrows(IllegalArgumentException.class, () -> validar.ejecutar(MATCH, "acertijo-1", "ana", largo));
         assertThrows(IllegalArgumentException.class, () -> validar.ejecutar(MATCH, "acertijo-1", "ana", conNulo));
-    }
-
-    private static class SolucionesFijas implements SolucionAcertijoRepository {
-        @Override
-        public Optional<List<String>> findByComponenteMapaId(String componenteMapaId) {
-            return "acertijo-1".equals(componenteMapaId) ? Optional.of(List.of("rojo", "azul")) : Optional.empty();
-        }
-    }
-
-    private static class CatalogoFijo implements AcertijoRepository {
-        @Override
-        public Optional<Acertijo> findByComponenteMapaId(String componenteMapaId) {
-            return componenteMapaId.startsWith("acertijo-") && !componenteMapaId.equals("acertijo-99")
-                    ? Optional.of(new Acertijo("cat-" + componenteMapaId, componenteMapaId, "Enunciado"))
-                    : Optional.empty();
-        }
-
-        @Override
-        public Acertijo save(Acertijo a) { return a; }
-    }
-
-    private static class ElementosFijos implements ElementoInteractivoRepository {
-        @Override
-        public List<ElementoInteractivo> findByAcertijoId(String acertijoId) {
-            return List.of(new ElementoInteractivo("e", acertijoId, "lista-ordenable", "Colores"));
-        }
-
-        @Override
-        public ElementoInteractivo save(ElementoInteractivo e) { return e; }
     }
 }

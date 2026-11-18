@@ -7,7 +7,6 @@ import co.eci.c15.gameplay.domain.AcertijoNoAbiertoException;
 import co.eci.c15.gameplay.domain.AcertijoYaResueltoException;
 import co.eci.c15.gameplay.domain.ComponenteSinAcertijoException;
 import co.eci.c15.gameplay.domain.JugadorNoRegistradoException;
-import co.eci.c15.gameplay.domain.SolucionNoDisponibleException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
@@ -65,13 +64,12 @@ class AcertijoSolucionControllerTest {
         when(useCase.ejecutar(eq("m1"), eq("acertijo-1"), eq("ana"), any()))
                 .thenThrow(new JugadorNoRegistradoException("m1", "ana"))
                 .thenThrow(new ComponenteSinAcertijoException("acertijo-1"))
-                .thenThrow(new SolucionNoDisponibleException("acertijo-1"))
                 .thenThrow(new AcertijoNoAbiertoException("acertijo-1", "ana"))
                 .thenThrow(new AcertijoBloqueadoException("acertijo-1"))
                 .thenThrow(new AcertijoYaResueltoException("acertijo-1"))
                 .thenThrow(new IllegalArgumentException("respuesta muy larga"));
 
-        int[] esperados = {404, 404, 404, 409, 409, 409, 400};
+        int[] esperados = {404, 404, 409, 409, 409, 400};
         for (int esperado : esperados) {
             mvc.perform(post(URL).principal(() -> "ana").contentType(MediaType.APPLICATION_JSON).content("{\"userId\":\"ana\"}"))
                     .andExpect(status().is(esperado))

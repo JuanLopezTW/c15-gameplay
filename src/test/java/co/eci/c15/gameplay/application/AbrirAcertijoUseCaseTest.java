@@ -38,7 +38,9 @@ class AbrirAcertijoUseCaseTest {
         jugadores = new JugadorEnMapaRepositoryEnMemoria();
         estados = new AcertijosEnPartidaEnMemoria();
         reloj = new RelojFijo(Instant.parse("2026-10-08T10:00:00Z"));
-        useCase = new AbrirAcertijoUseCase(jugadores, obtenerMapa, new CatalogoFijo(), new ElementosFijos(), estados, CandadoEquipo.ninguno(), reloj);
+        useCase = new AbrirAcertijoUseCase(jugadores, obtenerMapa, new CatalogoDePrueba().con("acertijo-1",
+                CatalogoDePrueba.simple("cat-1", "¿Cuánto es 2+2?", "e1", "campo-numero", List.of("4"))),
+                CatalogoDePrueba.vista(), estados, CandadoEquipo.ninguno(), reloj);
     }
 
     private JugadorEnMapa jugador(String equipo, String userId, Posicion posicion) {
@@ -56,6 +58,20 @@ class AbrirAcertijoUseCaseTest {
         assertEquals("PENDIENTE", dto.estado());
         assertTrue(dto.puedeEnviarSolucion());
         assertEquals(1, dto.elementos().size());
+    }
+
+    @Test
+    void mirarloNoLoBloqueaNiPideEstarAlLado() {
+        jugador("equipo-1", "ana", new Posicion(0, 0));
+        jugador("equipo-1", "beto", JUNTO_A_ACERTIJO_1);
+
+        VisualizarAcertijoDto dto = useCase.ver(MATCH, "acertijo-1", "ana");
+
+        assertEquals("pregunta", dto.tipo());
+        assertEquals("¿Cuánto es 2+2?", dto.enunciado());
+        assertDoesNotThrow(() -> useCase.ejecutar(MATCH, "acertijo-1", "beto"));
+        assertThrows(ComponenteSinAcertijoException.class, () -> useCase.ver(MATCH, "acertijo-99", "ana"));
+        assertThrows(JugadorNoRegistradoException.class, () -> useCase.ver(MATCH, "acertijo-1", "intruso"));
     }
 
     @Test
@@ -140,31 +156,6 @@ class AbrirAcertijoUseCaseTest {
         assertTrue(dto.resuelto());
         assertFalse(dto.puedeEnviarSolucion());
         assertTrue(ana.getAcertijoAbierto().isEmpty());
-    }
-
-    private static class CatalogoFijo implements AcertijoRepository {
-        private final Acertijo acertijo = new Acertijo("cat-1", "acertijo-1", "¿Cuánto es 2+2?");
-
-        @Override
-        public Optional<Acertijo> findByComponenteMapaId(String componenteMapaId) {
-            return acertijo.getComponenteMapaId().equals(componenteMapaId) ? Optional.of(acertijo) : Optional.empty();
-        }
-
-        @Override
-        public Acertijo save(Acertijo a) { return a; }
-    }
-
-    private static class ElementosFijos implements ElementoInteractivoRepository {
-        private final List<ElementoInteractivo> elementos = new ArrayList<>(List.of(
-                new ElementoInteractivo("e1", "cat-1", "campo-numero", "Respuesta")));
-
-        @Override
-        public List<ElementoInteractivo> findByAcertijoId(String acertijoId) {
-            return elementos.stream().filter(e -> e.getAcertijoId().equals(acertijoId)).toList();
-        }
-
-        @Override
-        public ElementoInteractivo save(ElementoInteractivo e) { return e; }
     }
 
     private static class RelojFijo extends Clock {

@@ -17,6 +17,8 @@ import org.springframework.stereotype.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Map;
+
 /**
  * Recoleccion de objetos del mapa e inventario compartido por equipo (HU-31.5). El jugador debe
  * estar junto al objeto; lo que recolecta pasa al inventario del equipo completo, y cada cambio se
@@ -26,6 +28,9 @@ import org.slf4j.LoggerFactory;
 public class RecolectarObjetoUseCase {
 
     private static final Logger log = LoggerFactory.getLogger(RecolectarObjetoUseCase.class);
+
+    /** Nombres de los objetos de los acertijos; las llaves se nombran por su id ("llave-1" -> "Llave 1"). */
+    private static final Map<String, String> NOMBRES = Map.of("lampara-uv", "Lámpara UV");
 
     private final JugadorEnMapaRepository jugadores;
     private final ObtenerMapaUseCase obtenerMapa;
@@ -47,7 +52,8 @@ public class RecolectarObjetoUseCase {
         JugadorEnMapa jugador = jugadores.find(matchId, userId)
                 .orElseThrow(() -> new JugadorNoRegistradoException(matchId, userId));
         ComponenteMapa componente = obtenerMapa.obtener(matchId).getComponentes().stream()
-                .filter(c -> c.id().equals(componenteMapaId) && c.tipo() == TipoComponente.LLAVE)
+                .filter(c -> c.id().equals(componenteMapaId)
+                        && (c.tipo() == TipoComponente.LLAVE || c.tipo() == TipoComponente.OBJETO))
                 .findFirst()
                 .orElseThrow(() -> new ObjetoNoRecolectableException(componenteMapaId));
         if (!estanJuntos(jugador.getPosicion(), componente.posicion())) {
@@ -75,8 +81,10 @@ public class RecolectarObjetoUseCase {
         return Math.abs(jugador.x() - objeto.x()) + Math.abs(jugador.y() - objeto.y()) == 1;
     }
 
-    /** "llave-1" -> "Llave 1". */
+    /** "llave-1" -> "Llave 1"; los objetos de acertijos tienen su nombre propio. */
     static String nombreDe(String componenteMapaId) {
+        String propio = NOMBRES.get(componenteMapaId);
+        if (propio != null) return propio;
         String legible = componenteMapaId.replace('-', ' ');
         return Character.toUpperCase(legible.charAt(0)) + legible.substring(1);
     }

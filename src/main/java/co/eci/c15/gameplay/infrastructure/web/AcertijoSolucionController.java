@@ -6,7 +6,6 @@ import co.eci.c15.gameplay.domain.AcertijoNoAbiertoException;
 import co.eci.c15.gameplay.domain.AcertijoYaResueltoException;
 import co.eci.c15.gameplay.domain.ComponenteSinAcertijoException;
 import co.eci.c15.gameplay.domain.JugadorNoRegistradoException;
-import co.eci.c15.gameplay.domain.SolucionNoDisponibleException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -38,7 +37,7 @@ public class AcertijoSolucionController {
                                     @RequestBody SolucionRequest body, Principal yo) {
         try {
             return ResponseEntity.ok(useCase.ejecutar(matchId, componenteMapaId, yo.getName(), body.respuesta()));
-        } catch (JugadorNoRegistradoException | ComponenteSinAcertijoException | SolucionNoDisponibleException e) {
+        } catch (JugadorNoRegistradoException | ComponenteSinAcertijoException e) {
             return error(HttpStatus.NOT_FOUND, e.getMessage());
         } catch (AcertijoBloqueadoException | AcertijoNoAbiertoException | AcertijoYaResueltoException e) {
             return error(HttpStatus.CONFLICT, e.getMessage());
